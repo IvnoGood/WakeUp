@@ -1,5 +1,6 @@
 // app/(tabs)/alarms.jsx (or wherever your HomeScreen is)
 
+import { handleAlarmMenuSelect } from "@/components/handleAlarmMenu";
 import AlarmCard from '@/components/ui/Alarm';
 import PageHeader from '@/components/ui/pageHeader';
 import { Colors } from '@/constants/colors';
@@ -17,38 +18,14 @@ import {
 } from 'react-native-popup-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-export default function HomeScreen() {
-    const [fontsLoaded] = useFonts({
-        ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
-    });
+export default function Alarms() {
     const iconColor = '#333'
     const [alarms, setAlarms] = useState()
     const [favorites, setFavorites] = useState([])
 
-    const handleMenuSelect = async (value, alarmId, alarm) => {
-        alert(`Action: ${value} on Alarm ID: ${alarmId}`);
-        // Here you would implement your logic, e.g.:
-        if (value === 'delete') {
-            const RawSavedDevices = JSON.parse(await AsyncStorage.getItem('alarms'))
-            const newArray = RawSavedDevices.filter(alarm => alarm.id !== alarmId)
-            await AsyncStorage.setItem('alarms', JSON.stringify(newArray))
-            console.log('completed succesfully');
-            setAlarms(newArray)
-        } else if (value === 'manageFavs') {
-            favorites.forEach(favorite => {
-                if (favorite.id == alarmId) {
-                    console.log("alarm found", favorite.title)
-                }
-            });
-            const rawFavs = await AsyncStorage.getItem('favs')
-            const favs = rawFavs ? JSON.parse(rawFavs) : []
-
-            const newFavs = [...favs, alarm]
-            setFavorites(newFavs)
-            await AsyncStorage.setItem('favs', JSON.stringify(newFavs))
-            console.log("newfavs: ", newFavs)
-        }
-    };
+    const [fontsLoaded] = useFonts({
+        ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
+    });
 
     const getAlarms = useCallback(() => {
         async function fetchData() {
@@ -87,7 +64,7 @@ export default function HomeScreen() {
                                     initialIsActive={alarm.initialIsActive}
                                 />
                             </View>
-                            <Menu onSelect={(value) => handleMenuSelect(value, alarm.id, alarm)}>
+                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites,)}>
                                 <MenuTrigger>
                                     <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
                                 </MenuTrigger>

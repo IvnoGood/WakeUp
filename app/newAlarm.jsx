@@ -9,7 +9,6 @@ import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Button,
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
@@ -37,6 +36,11 @@ export default function AddNewAlarmScreen() {
 
     if (!fontsLoaded) {
         return null;
+    }
+
+    const onSunriseChange = (textData) => {
+        const numericText = textData.replace(/[^0-9]/g, '');
+        setSunriseTime(numericText)
     }
 
     const storeData = async () => {
@@ -81,7 +85,6 @@ export default function AddNewAlarmScreen() {
 
     const onChange = (event, selectedTime) => {
         setShowPicker(false);
-
         if (selectedTime) {
             setTime(selectedTime);
         }
@@ -130,13 +133,11 @@ export default function AddNewAlarmScreen() {
                             keyboardType="numeric"
                             label="Sunrise time"
                             value={sunriseTime}
-                            onChangeText={setSunriseTime}
+                            onChangeText={onSunriseChange}
                             vals={"min"}
                             maxLen={9}
                         />
-
-                        <Button title='print updat' onPress={console.log(new Date(time).setMinutes(new Date(time).getMinutes() + 10))}></Button>
-
+                        {/* <Button title='print updat' onPress={console.log(new Date(time).setMinutes(new Date(time).getMinutes() + 10))}></Button>*/}
                         <View style={[styles.formRow, { borderBottomWidth: 0 }]}>
                             <Text style={styles.label}>Brightness</Text>
                             <View style={styles.sliderControl}>

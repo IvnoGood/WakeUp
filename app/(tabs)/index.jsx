@@ -1,3 +1,4 @@
+import { handleAlarmMenuSelect } from "@/components/handleAlarmMenu";
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceCard from "@/components/ui/DeviceCard";
 import { Colors } from '@/constants/colors';
@@ -7,36 +8,19 @@ import { Link, router, useFocusEffect } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import {
-    Menu,
-    MenuOption,
-    MenuOptions,
-    MenuProvider,
-    MenuTrigger
-} from 'react-native-popup-menu';
+import { Menu, MenuOption, MenuOptions, MenuProvider, MenuTrigger } from 'react-native-popup-menu';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const alarmsData = [];
-
-
 export default function HomeScreen() {
-    const [devices, setDevices] = useState();
-    const [loaded, error] = useFonts({
+    const [devices, setDevices] = useState([]);
+    const [favorites, setFavorites] = useState([])
+
+    const [fontsLoaded] = useFonts({
         ShadowsIntoLightRegular: require("@/assets/fonts/ShadowsIntoLight-Regular.ttf"),
     });
 
-    const iconColor = '#333'
-
-    const handleMenuSelect = async (value, alarmId) => {
-        /* alert(`Action: ${value} on Alarm ID: ${alarmId}`); */
-        // Here you would implement your logic, e.g.:
+    const handleMenuSelect = async (value, deviceId) => {
         if (value === 'delete') {
-            /* const RawSavedDevices = await AsyncStorage.getItem('devices')
-            const newArray = RawSavedDevices.filter(alarm => {
-                return alarm.deviceName !== alarmId;
-            })
-            setDevices(newArray)
-            await AsyncStorage.setItem('devices', JSON.stringify(newArray)) */
             await AsyncStorage.removeItem('devices')
             GetDevices()
         }
@@ -44,6 +28,7 @@ export default function HomeScreen() {
             router.push('/newDevice')
         }
     };
+
 
     async function GetDevices() {
         try {
@@ -61,6 +46,11 @@ export default function HomeScreen() {
                 const RawSavedDevices = await AsyncStorage.getItem('devices')
                 const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
                 setDevices(SavedDevices)
+
+                const rawSavedFavs = await AsyncStorage.getItem('favs');
+                const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : null;
+                setFavorites(savedFavs)
+                console.log("all favorites: ", savedFavs)
             } catch (e) {
                 // error reading value
             }
@@ -90,7 +80,7 @@ export default function HomeScreen() {
                             <MenuOptions optionsContainerStyle={styles.menuOptionsContainer}>
                                 <MenuOption value="edit" style={styles.menuOption}>
                                     <Text style={styles.menuOptionText}>Edit</Text>
-                                    <MaterialIcons name="edit" size={20} color={iconColor} />
+                                    <MaterialIcons name="edit" size={20} color={'#333'} />
                                 </MenuOption>
                                 <MenuOption value="delete" style={styles.menuOption}>
                                     <Text style={[styles.menuOptionText, { color: 'red' }]}>Delete</Text>
@@ -108,7 +98,7 @@ export default function HomeScreen() {
 
                 <Text style={styles.title}>Favorites Alarms:</Text>
                 <ScrollView>
-                    {alarmsData.map((alarm) => (
+                    {favorites ? favorites.map((alarm) => (
                         <View key={alarm.id} style={styles.cardRow}>
                             <View style={{ flex: 1 }}>
                                 <AlarmCard
@@ -119,18 +109,22 @@ export default function HomeScreen() {
                                     initialIsActive={alarm.initialIsActive}
                                 />
                             </View>
-                            <Menu onSelect={(value) => handleMenuSelect(value, alarm.id)}>
+                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites,)}>
                                 <MenuTrigger>
                                     <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
                                 </MenuTrigger>
                                 <MenuOptions optionsContainerStyle={styles.menuOptionsContainer}>
                                     <MenuOption value="edit" style={styles.menuOption}>
                                         <Text style={styles.menuOptionText}>Edit</Text>
-                                        <MaterialIcons name="edit" size={20} color={iconColor} />
+                                        <MaterialIcons name="edit" size={20} color={'#333'} />
                                     </MenuOption>
                                     <MenuOption value="duplicate" style={styles.menuOption}>
                                         <Text style={styles.menuOptionText}>Duplicate</Text>
-                                        <MaterialIcons name="content-copy" size={20} color={iconColor} />
+                                        <MaterialIcons name="content-copy" size={20} color={'#333'} />
+                                    </MenuOption>
+                                    <MenuOption value="manageFavs" style={styles.menuOption}>
+                                        <Text style={styles.menuOptionText}>Add to favorites</Text>
+                                        <MaterialIcons name="favorite" size={20} color={'#333'} />
                                     </MenuOption>
                                     <MenuOption value="delete" style={styles.menuOption}>
                                         <Text style={[styles.menuOptionText, { color: 'red' }]}>Delete</Text>
@@ -139,7 +133,7 @@ export default function HomeScreen() {
                                 </MenuOptions>
                             </Menu>
                         </View>
-                    ))}
+                    )) : <Text style={styles.noFavs}>No favorites added</Text>}
                 </ScrollView>
             </View>
         </MenuProvider>
@@ -194,7 +188,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5EFE6', // Soft, light color that fits your theme
         borderRadius: 12,
         marginTop: 35, // Push it down from the icon
-        width: 150, // Give it a consistent width
+        width: 170, // Give it a consistent width
     },
     menuOption: {
         flexDirection: 'row',
@@ -207,5 +201,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333', // Dark gray is softer than pure black
     },
+    noFavs: {
+        fontFamily: 'ShadowIntoLightRegular',
+        color: Colors.text,
+        textTransform: 'capitalize',
+        fontSize: 30,
+        textAlign: 'center',
+        marginTop: 100
+    }
     // Note: The contextView style isn't needed anymore with the new menuOption style
 });
