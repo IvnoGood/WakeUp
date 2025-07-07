@@ -13,7 +13,7 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="newDevice" options={{ headerShown: false }} />
         <Stack.Screen name="newAlarm" options={{ headerShown: false }} />
-
+        <Stack.Screen name='editAlarm' />
       </Stack>
       <StatusBar style="light" />
     </>
