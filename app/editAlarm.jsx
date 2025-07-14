@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
     KeyboardAvoidingView,
     Platform,
@@ -20,23 +20,18 @@ import {
 import uuid from 'react-native-uuid';
 
 // --- Main Screen Component ---
-export default function AddNewAlarmScreen() {
-    const [name, setName] = useState('School Morning');
-    const [sunriseTime, setSunriseTime] = useState('30');
-    const [brightness, setBrightness] = useState(0.7); // Value between 0 and 1
-
+export default function EditAlarm() {
+    const [name, setName] = useState('');
+    const [sunriseTime, setSunriseTime] = useState('');
+    const [brightness, setBrightness] = useState(0); // Value between 0 and 1
     const [time, setTime] = useState(new Date());
-    const [showPicker, setShowPicker] = useState(false);
 
+    const [showPicker, setShowPicker] = useState(false);
     const router = useRouter();
 
     const [fontsLoaded] = useFonts({
         'ShadowsIntoLight': require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'), // Update path if needed
     });
-
-    if (!fontsLoaded) {
-        return null;
-    }
 
     const onSunriseChange = (textData) => {
         const numericText = textData.replace(/[^0-9]/g, '');
@@ -98,13 +93,28 @@ export default function AddNewAlarmScreen() {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
+    const fetchAlarm = useCallback(() => {
+        async function Fetch() {
+            const rawAlarm = await AsyncStorage.getItem('EditableContent')
+            const Alarm = rawAlarm ? JSON.parse(rawAlarm) : router.back()
+            console.log(Alarm)
+            setName(Alarm.title)
+            setSunriseTime(Alarm.sunriseTime)
+            setBrightness(Alarm.brightness)
+            setTime(new time(Alarm.startTime))
+
+        }
+        Fetch()
+    }, [])
+    useFocusEffect(fetchAlarm)
+
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <PageHeader title={"New Alarm"} showClose={true} />
+                <PageHeader title={"Edit Alarm"} showClose={true} />
 
                 <View style={styles.content}>
                     <View style={styles.form}>

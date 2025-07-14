@@ -1,4 +1,5 @@
 import { handleAlarmMenuSelect } from "@/components/handleAlarmMenu";
+import { menuAlarmFavorite } from '@/components/menuAlarmFavorite';
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceCard from "@/components/ui/DeviceCard";
 import { Colors } from '@/constants/colors';
@@ -22,7 +23,7 @@ export default function HomeScreen() {
     const handleMenuSelect = async (value, deviceId) => {
         if (value === 'delete') {
             await AsyncStorage.removeItem('devices')
-            GetDevices()
+            setDevices(null)
         }
         else if (value === 'edit') {
             router.push('/newDevice')
@@ -50,7 +51,7 @@ export default function HomeScreen() {
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : null;
                 setFavorites(savedFavs)
-                console.log("all favorites: ", savedFavs)
+                //console.log("all favorites: ", savedFavs)
             } catch (e) {
                 // error reading value
             }
@@ -59,15 +60,19 @@ export default function HomeScreen() {
     }, [])
     useFocusEffect(getData)
 
+    if (!fontsLoaded) {
+        return null;
+    }
+
     return (
         <MenuProvider>
             <View style={styles.container}>
                 <StatusBar style="light" />
-                <TouchableOpacity onPress={async () => { console.log(await AsyncStorage.getItem('alarms')) }}>
+                <TouchableOpacity onPress={async () => { console.log(await AsyncStorage.getItem('devices')) }}>
                     <Text>Get data</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={async () => { router.navigate('/test') }}>
-                    <Text>Get pdpdp</Text>
+                    <Text>Open test page</Text>
                 </TouchableOpacity>
                 <Text style={styles.title}>Your devices: </Text>
                 <View style={styles.devicesContainer}>
@@ -97,7 +102,7 @@ export default function HomeScreen() {
                 <View style={styles.line}></View>
 
                 <Text style={styles.title}>Favorites Alarms:</Text>
-                <ScrollView>
+                <ScrollView showsVerticalScrollIndicator={false}>
                     {favorites ? favorites.map((alarm) => (
                         <View key={alarm.id} style={styles.cardRow}>
                             <View style={{ flex: 1 }}>
@@ -109,7 +114,7 @@ export default function HomeScreen() {
                                     initialIsActive={alarm.initialIsActive}
                                 />
                             </View>
-                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites,)}>
+                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites, null, null)}>
                                 <MenuTrigger>
                                     <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
                                 </MenuTrigger>
@@ -123,7 +128,7 @@ export default function HomeScreen() {
                                         <MaterialIcons name="content-copy" size={20} color={'#333'} />
                                     </MenuOption>
                                     <MenuOption value="manageFavs" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>Add to favorites</Text>
+                                        <Text style={styles.menuOptionText}>{menuAlarmFavorite(alarm, favorites)}</Text>
                                         <MaterialIcons name="favorite" size={20} color={'#333'} />
                                     </MenuOption>
                                     <MenuOption value="delete" style={styles.menuOption}>

@@ -1,19 +1,19 @@
 import { Colors } from '@/constants/colors';
 import { useFonts } from 'expo-font';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-export default function PageHeader({ title, child, showClose, showPlus, plusHref }) {
+export default function PageHeader({ title, child, showClose, showPlus, plusAction, closeAction }) {
     const [loading] = useFonts({
         ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf')
     })
     const router = useRouter();
     return (
         <View style={styles.header} >
-            {showClose && <TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}><MaterialIcons name={"close"} size={28} color={Colors.text} /></TouchableOpacity>}
+            {showClose && <TouchableOpacity onPress={() => closeAction ? closeAction() : router.back()} style={styles.closeBtn}><MaterialIcons name={"close"} size={28} color={Colors.text} /></TouchableOpacity>}
             <Text style={styles.title}>{title}</Text>
-            {showPlus && <Link href={plusHref} style={styles.addBtn}><MaterialIcons name={"add"} size={28} color={Colors.text} /></Link>}
+            {showPlus && <TouchableOpacity onPress={() => plusAction()} style={styles.addBtn}><MaterialIcons name={"add"} size={28} color={Colors.text} /></TouchableOpacity>}
             {child}
         </View>
     );

@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1B1A2C"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.IvnoGood.WakeUp"
     },
     "web": {
       "bundler": "metro",
@@ -29,15 +30,36 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "imageWidth": 400,
           "resizeMode": "contain",
           "backgroundColor": "#1B1A2C"
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "color": "#1B1A2C",
+          "icon": "./assets/images/notificationIcon.png",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": true
+        }
+      ],
+      [
+        "expo-task-manager",
+        {
+          "permissionMessage": "Allow WakeUp to run alarms and other background tasks."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d6e9fdf5-0dfa-47f0-982a-5aee7b7a5827"
+      }
     }
   }
 }

@@ -6,8 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import uuid from 'react-native-uuid';
+
 import {
     KeyboardAvoidingView,
     Platform,
@@ -17,16 +19,16 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import uuid from 'react-native-uuid';
 
 // --- Main Screen Component ---
 export default function AddNewAlarmScreen() {
     const [name, setName] = useState('School Morning');
     const [sunriseTime, setSunriseTime] = useState('30');
-    const [brightness, setBrightness] = useState(0.7); // Value between 0 and 1
+    const [brightness, setBrightness] = useState(0); // Value between 0 and 1
 
     const [time, setTime] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
+    const [savedAlarm, setSavedAlarm] = useState(null)
 
     const router = useRouter();
 
@@ -34,31 +36,36 @@ export default function AddNewAlarmScreen() {
         'ShadowsIntoLight': require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'), // Update path if needed
     });
 
-    if (!fontsLoaded) {
-        return null;
-    }
-
     const onSunriseChange = (textData) => {
         const numericText = textData.replace(/[^0-9]/g, '');
         setSunriseTime(numericText)
     }
+    const pctimeToReadbleTime = time => {
+        const timeAsStr = String(time)
+        if (timeAsStr.length < 2) {
+            return '0' + time;
+        } else {
+            return time;
+        }
+    };
 
     const storeData = async () => {
         try {
             if (sunriseTime > 60) {
                 alert('Sunrise time must be greater should be less than 60min')
             }
-            // Assume `time` is a string or Date object representing 18:10
-            const date = new Date(time);
 
-            // This line modifies the `date` object in place.
-            date.setMinutes(date.getMinutes() + sunriseTime);
+            const rawEndTime = new Date(time);
 
-            const startCut = `${time.getHours()}:${time.getMinutes() == 0 ? '00' : time.getMinutes()}`
-            const endCut = `${date.getHours()}:${date.getMinutes() == 0 ? '00' : time.getMinutes()}`
+            const EndTime = rawEndTime
+            const startTime = time
 
-            const key = 'alarms'
-            const RawSavedDevices = await AsyncStorage.getItem(key)
+            EndTime.setMinutes(startTime.getMinutes() + parseInt(sunriseTime))
+
+            const startCut = `${pctimeToReadbleTime(startTime.getHours())}:${pctimeToReadbleTime(startTime.getMinutes())}`
+            const endCut = `${pctimeToReadbleTime(EndTime.getHours())}:${pctimeToReadbleTime(EndTime.getMinutes())}`
+
+            const RawSavedDevices = await AsyncStorage.getItem('alarms')
             const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : []
 
             const DeviceData = {
@@ -67,13 +74,23 @@ export default function AddNewAlarmScreen() {
                 subtitle: 'Next light up Saturday',
                 startTime: startCut,
                 endTime: endCut,
+                rawStartTime: startTime,
+                rawEndTime: EndTime,
                 sunriseTime: sunriseTime,
                 initialIsActive: false,
                 brightness: brightness
             }
-            const updatedDevicesArray = [...SavedDevices, DeviceData];
-            /* const updatedDevicesArray = DeviceData */
-            await AsyncStorage.setItem(key, JSON.stringify(updatedDevicesArray));
+
+            if (savedAlarm == null) {
+                const updatedDevicesArray = [...SavedDevices, DeviceData];
+                await AsyncStorage.setItem('alarms', JSON.stringify(updatedDevicesArray));
+            } else {
+                console.log("modifying data")
+                const newArray = SavedDevices.filter(alarm => alarm.id !== savedAlarm.id)
+                const updatedDevicesArray = [...newArray, DeviceData];
+                console.log(updatedDevicesArray)
+                await AsyncStorage.setItem('alarms', JSON.stringify(updatedDevicesArray));
+            }
             router.back()
         } catch (e) {
             console.error("Failed to save data to AsyncStorage", e);
@@ -98,13 +115,53 @@ export default function AddNewAlarmScreen() {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
     };
 
+    const onQuit = async () => {
+        console.log(savedAlarm)
+        if (savedAlarm == null) {
+            router.back()
+        } else {
+            await AsyncStorage.removeItem('EditableContent')
+            console.log(true)
+            router.back()
+        }
+    }
+
+    const fetchAlarm = useCallback(() => {
+        async function Fetch() {
+            const rawAlarm = await AsyncStorage.getItem('EditableContent')
+            const Alarm = rawAlarm ? JSON.parse(rawAlarm) : null
+            if (Alarm != null) {
+                try {
+                    setName(Alarm.title)
+                    setSunriseTime(Alarm.sunriseTime)
+                    setBrightness(Alarm.brightness)
+                    const [hours, minutes] = Alarm.startTime.split(':');
+                    const initialTime = new Date();
+                    initialTime.setHours(parseInt(hours, 10));
+                    initialTime.setMinutes(parseInt(minutes, 10));
+
+                    setTime(initialTime);
+                    setSavedAlarm(Alarm)
+                } catch (e) {
+                    console.log("error happened", e)
+                }
+            }
+        }
+        Fetch()
+    }, [])
+    useFocusEffect(fetchAlarm)
+
+    if (!fontsLoaded) {
+        return null;
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <PageHeader title={"New Alarm"} showClose={true} />
+                <PageHeader title={savedAlarm == null ? "New Alarm" : "Edit alarm"} showClose={true} closeAction={onQuit} />
 
                 <View style={styles.content}>
                     <View style={styles.form}>
@@ -147,7 +204,7 @@ export default function AddNewAlarmScreen() {
                                     value={brightness}
                                     onValueChange={setBrightness}
                                     minimumValue={0}
-                                    maximumValue={1}
+                                    maximumValue={255}
                                     minimumTrackTintColor={Colors.accent}
                                     maximumTrackTintColor={Colors.small}
                                     thumbTintColor="#FFFFFF"

@@ -1,4 +1,5 @@
 import { InputWithLabel } from '@/components/InputWithLabel';
+import { blink } from "@/components/lightUp";
 import { Collapsible } from '@/components/ui/collapsible';
 import PageHeader from '@/components/ui/pageHeader';
 import { Colors } from '@/constants/colors';
@@ -8,7 +9,7 @@ import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Button, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
+import { Button, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 
 export default function Tab() {
     const [loading] = useFonts({
@@ -16,71 +17,21 @@ export default function Tab() {
     })
     const [devices, setDevices] = useState({});
     const [delay, setDelay] = useState('3');
-    const [brightness, setBrightness] = useState(0)
     const [maxpower, setMaxpower] = useState(255) //255 max
+    const [brightness, setBrightness] = useState()
     const [precision, setPrecision] = useState(1);
     const [stop, setStop] = useState(false)
     const stopRef = useRef(stop)
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function blink() {
-        try {
-            if (precision == 0 || precision > 1) {
-                console.warn('precision cannot be set to zero or > than 1')
-                setPrecision(1)
-            }
-            /*Prepare the lamp by putting default values like color and transition time */
-            await fetch(`http://${devices.ip}/json/state`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ "bri": 0, transition: 4, seg: [{ "col": [devices.color] }] }),
-            }).then(response => response.json())
-                /* .then(data => console.log(data)) */
-                .catch(error => console.error('Error:', error));
-
-            const Steps = maxpower * precision / delay
-            setStop(true)
-            setBrightness(0)
-            let currentStep = Steps
-            let multiplier = 1
-            let bright = 0
-            await sleep(1000);
-            while (multiplier - 1 < delay && stopRef.current === true) { //bright < maxpower && stop === true
-                bright = Math.floor(currentStep * multiplier)
-                setBrightness(bright)
-                fetch(`http://${devices.ip}/json/state`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ bri: bright }),
-                }).then(response => response.json())
-                    /* .then(data => console.log(data)) */
-                    .catch(error => console.error('Error:', error));
-                multiplier += 1
-                await sleep(1000 / precision);
-                console.log("brightness", bright)
-            }
-            console.warn("finished succesfuly")
-        } catch (e) {
-            console.error("error happened", e)
-        }
-        setStop(!stopRef.current)
-    }
-
     async function switchStatus() {
+        console.log(devices)
         await fetch(`http://${devices.ip}/json/state`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ "on": "t", transition: 4, seg: [{ "col": [devices.color] }] }),
-        }).then(response => response.json())
+        }).then(response => response.status)
             .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
     }
@@ -114,40 +65,48 @@ export default function Tab() {
 
     useFocusEffect(callBack)
 
-    return (
-        <View style={styles.container}>
-            <PageHeader title={"Settings"} />
-            {/*      <Button title='get data' onPress={() => GetData()}></Button> */}
-            <Collapsible title={"Toggle"}>
-                <Button title='switch power' onPress={switchStatus}></Button>
-            </Collapsible>
+    if (!loading) {
+        return null
+    }
 
-            <Collapsible title="test alarm">
-                <InputWithLabel label="Delay" value={delay} onChangeText={setDelay} />
-                <View style={styles.sliderControl}>
-                    <MaterialCommunityIcons name="weather-night" size={24} color={Colors.accent} />
-                    <Slider
-                        style={styles.slider}
-                        value={brightness}
-                        onValueChange={setBrightness}
-                        minimumValue={0}
-                        maximumValue={maxpower}
-                        minimumTrackTintColor={Colors.accent}
-                        maximumTrackTintColor={Colors.small}
-                        thumbTintColor="#FFFFFF"
-                    />
-                    <MaterialCommunityIcons name="white-balance-sunny" size={24} color={Colors.accent} />
-                </View>
-                <Switch value={stop} onChange={(e) => {
-                    setStop(!stop)
-                }} style={styles.switch} />
-                <TouchableOpacity style={styles.submitBtn} onPress={blink}>
-                    <Text style={styles.btnTitle}>Activate alarm simulation</Text>
-                </TouchableOpacity>
-            </Collapsible>
-            <Collapsible title={"Favorites"}>
-                <Button title='delete all favs' onPress={deleteFavs}></Button>
-            </Collapsible>
+    return (
+
+        <View style={styles.container}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <PageHeader title={"Settings"} />
+                {/*      <Button title='get data' onPress={() => GetData()}></Button> */}
+                <Collapsible title={"Toggle"}>
+                    <Button title='switch power' onPress={switchStatus}></Button>
+                </Collapsible>
+
+                <Collapsible title="test alarm">
+                    <InputWithLabel label="Delay" value={delay} onChangeText={setDelay} />
+                    <View style={styles.sliderControl}>
+                        <MaterialCommunityIcons name="weather-night" size={24} color={Colors.accent} />
+                        <Slider
+                            style={styles.slider}
+                            value={brightness}
+                            onValueChange={setBrightness}
+                            minimumValue={0}
+                            maximumValue={maxpower}
+                            minimumTrackTintColor={Colors.accent}
+                            maximumTrackTintColor={Colors.small}
+                            thumbTintColor="#FFFFFF"
+                        />
+                        <MaterialCommunityIcons name="white-balance-sunny" size={24} color={Colors.accent} />
+                    </View>
+                    <Switch value={stop} onChange={(e) => {
+                        setStop(!stop)
+                    }} style={styles.switch} />
+                    <TouchableOpacity style={styles.submitBtn} onPress={() => blink(devices, delay, maxpower, setStop, stopRef, setBrightness)}>
+                        <Text style={styles.btnTitle}>Activate alarm simulation</Text>
+                    </TouchableOpacity>
+                </Collapsible>
+                <Collapsible title={"Delete data"}>
+                    <Button title='delete all favorites' onPress={deleteFavs}></Button>
+                    <Button title='delete all alarms' onPress={async () => { await AsyncStorage.removeItem('alarms'); deleteFavs() }}></Button>
+                </Collapsible>
+            </ScrollView >
         </View>
     );
 }
@@ -185,7 +144,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 15,
         minHeight: 50,
-        height: 100,
     },
     btnTitle: {
         color: Colors.text,

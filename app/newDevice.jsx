@@ -50,8 +50,6 @@ export default function AddNewDeviceScreen() {
     }
 
     function rgbToHex(rgb) {
-        console.log(parseInt(rgb[3]))
-
         let red = parseInt(rgb[0]).toString(16).padStart(2, '0'); // FF
         let green = parseInt(rgb[1]).toString(16).padStart(2, '0'); // C0
         let blue = parseInt(rgb[2]).toString(16).padStart(2, '0'); // CB
@@ -64,23 +62,18 @@ export default function AddNewDeviceScreen() {
             let rgbColor
             if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color)) {
                 rgbColor = hexToRGB(color)
-                console.log(rgbColor)
             } else {
                 alert('not valid color', color)
                 console.warn('not a valid color')
+                return
             }
-
-            const RawSavedDevices = await AsyncStorage.getItem('devices')
-            const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : []
 
             const DeviceData = {
                 ip: ipAddress,
                 deviceName: deviceName,
                 color: rgbColor
             }
-            const updatedDevicesArray = DeviceData
-            await AsyncStorage.setItem('devices', JSON.stringify(updatedDevicesArray));
-            console.log("Data saved successfully:", updatedDevicesArray);
+            await AsyncStorage.setItem('devices', JSON.stringify(DeviceData));
             router.back()
         } catch (e) {
             console.error("Failed to save data to AsyncStorage", e);
@@ -94,15 +87,10 @@ export default function AddNewDeviceScreen() {
             try {
                 const rawDevice = await AsyncStorage.getItem('devices');
                 const savedDevice = rawDevice ? JSON.parse(rawDevice) : null;
-                console.log(savedDevice)
                 if (savedDevice || savedDevice != []) {
-                    console.log("modifying mode")
                     setIpAddress(savedDevice.ip)
                     setDeviceName(savedDevice.deviceName)
                     setColor(rgbToHex(savedDevice.color))
-                }
-                else {
-                    console.log("creating mode")
                 }
             } catch (e) {
                 console.error("Failed to fetch devices", e);

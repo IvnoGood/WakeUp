@@ -1,0 +1,66 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function blink(devices, alarm) {
+    try {
+        console.log("Started light sequence")
+        const maxpower = Math.floor(alarm.brightness)
+        console.log(maxpower)
+        const precision = 1
+        const rawAlarmState = await AsyncStorage.getItem(alarm.id)
+        console.log("rawAlarmState", rawAlarmState)
+        const alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : null
+        if (alarmState === null) {
+            console.error("Error while fetching data")
+            return
+        }
+
+        if (precision == 0 || precision > 1) {
+            console.warn('precision cannot be set to zero or > than 1')
+            //setPrecision(1)
+        }
+        //Prepare the lamp by putting default values like color and transition time
+        await fetch(`http://${devices.ip}/json/state`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ "bri": 0, transition: 4, seg: [{ "col": [devices.color] }] }),
+        }).then(response => response.status)
+            // .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+
+        const Steps = maxpower * precision / alarm.sunriseTime
+        let currentStep = Steps
+        let multiplier = 1
+        let bright = 0
+        await sleep(1000);
+        if (alarmState) {
+            while (multiplier - 1 < alarm.sunriseTime) { //bright < maxpower && stop === true
+                if (JSON.parse(await AsyncStorage.getItem(alarm.id))) {
+                    bright = Math.floor(currentStep * multiplier)
+                    fetch(`http://${devices.ip}/json/state`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ bri: bright }),
+                    }).then(response => response.status)
+                        // .then(data => console.log(data))
+                        .catch(error => console.error('Error:', error));
+                    multiplier += 1
+                    await sleep(1000 / precision);
+                    console.log("brightness", bright)
+                }
+            }
+        } else {
+            console.warn("Maybe error but alarm lighUp stopped at lunch")
+        }
+        console.warn("finished succesfuly")
+    } catch (e) {
+        console.error("error happened", e)
+    }
+}
