@@ -54,6 +54,10 @@ export default function Alarms() {
     }, []);
     useFocusEffect(getAlarms)
 
+    if (!fontsLoaded) {
+        return null
+    }
+
     return (
         <MenuProvider>
             <View style={styles.container}>

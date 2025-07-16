@@ -5,16 +5,20 @@ import uuid from 'react-native-uuid';
 export const handleAlarmMenuSelect = async (value, alarmId, alarm, setFavorites, favorites, alarms, setAlarms) => {
     const navigation = useRouter();
     if (value === 'delete') {
-        const RawSavedDevices = JSON.parse(await AsyncStorage.getItem('alarms'))
-        const newArray = RawSavedDevices.filter(alarm => alarm.id !== alarmId)
-        await AsyncStorage.setItem('alarms', JSON.stringify(newArray));
-        setAlarms(newArray)
+        try {
+            const RawSavedDevices = JSON.parse(await AsyncStorage.getItem('alarms'))
+            const newArray = RawSavedDevices.filter(alarm => alarm.id !== alarmId)
+            await AsyncStorage.setItem('alarms', JSON.stringify(newArray));
+            setAlarms ? setAlarms(newArray) : console.log("skipped setAlarms function bc not exist");
 
-        const newFavArray = favorites.filter(fav => alarm.id !== fav.id);
-        await AsyncStorage.setItem('favs', JSON.stringify(newFavArray))
-
-        console.log('completed succesfully');
-        setFavorites(newFavArray)
+            const newFavArray = favorites.filter(fav => alarm.id !== fav.id);
+            await AsyncStorage.setItem('favs', JSON.stringify(newFavArray))
+ 
+            console.log('completed succesfully');
+            setFavorites(newFavArray)
+        } catch (e) {
+            console.error("error while deleting the fav", e)
+        }
     } else if (value === 'manageFavs') {
         try {
             /* const isFav = favorites.map(favorite => {

@@ -68,12 +68,6 @@ export default function HomeScreen() {
         <MenuProvider>
             <View style={styles.container}>
                 <StatusBar style="light" />
-                <TouchableOpacity onPress={async () => { console.log(await AsyncStorage.getItem('devices')) }}>
-                    <Text>Get data</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={async () => { router.navigate('/test') }}>
-                    <Text>Open test page</Text>
-                </TouchableOpacity>
                 <Text style={styles.title}>Your devices: </Text>
                 <View style={styles.devicesContainer}>
                     {devices ? (<View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -107,11 +101,8 @@ export default function HomeScreen() {
                         <View key={alarm.id} style={styles.cardRow}>
                             <View style={{ flex: 1 }}>
                                 <AlarmCard
-                                    title={alarm.title}
-                                    subtitle={alarm.subtitle}
-                                    startTime={alarm.startTime}
-                                    endTime={alarm.endTime}
-                                    initialIsActive={alarm.initialIsActive}
+                                    alarm={alarm}
+                                    device={devices}
                                 />
                             </View>
                             <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites, null, null)}>

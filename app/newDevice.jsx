@@ -116,7 +116,6 @@ export default function AddNewDeviceScreen() {
                             label="Ip adress:"
                             value={ipAddress}
                             onChangeText={setIpAddress}
-                            keyboardType="numeric"
                         />
                         <InputWithLabel
                             label="Name:"
