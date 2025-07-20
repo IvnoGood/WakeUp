@@ -8,6 +8,7 @@ import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { Button, FAB, Text, useTheme } from "react-native-paper";
 import uuid from 'react-native-uuid';
 
 import {
@@ -15,8 +16,6 @@ import {
     Platform,
     SafeAreaView,
     StyleSheet,
-    Text,
-    TouchableOpacity,
     View
 } from 'react-native';
 
@@ -31,6 +30,7 @@ export default function AddNewAlarmScreen() {
     const [savedAlarm, setSavedAlarm] = useState(null)
 
     const router = useRouter();
+    const theme = useTheme()
 
     const [fontsLoaded] = useFonts({
         'ShadowsIntoLight': require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'), // Update path if needed
@@ -156,32 +156,44 @@ export default function AddNewAlarmScreen() {
     }
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <PageHeader title={savedAlarm == null ? "New Alarm" : "Edit alarm"} showClose={true} closeAction={onQuit} />
+                <PageHeader title={savedAlarm == null ? "New Alarm" : "Edit alarm"} />
 
                 <View style={styles.content}>
                     <View style={styles.form}>
                         <InputWithLabel label="Name" value={name} onChangeText={setName} />
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Sunrise start</Text>
 
                             {/* The button that triggers showing the picker */}
-                            <TouchableOpacity style={styles.inputContainer} onPress={toggleTimepicker}>
+                            {/* <TouchableOpacity style={styles.inputContainer} onPress={toggleTimepicker}>
                                 <Text style={styles.input}> {formatTime(time)}</Text>
+                            </TouchableOpacity> */}
+                            {/*                             <TouchableOpacity onPress={toggleTimepicker} style={{ backgroundColor: 'red', position: 'absolute', width: '100%', height: 57, top: 0, right: 0 }}>
                             </TouchableOpacity>
+                            <InputWithLabel
+                                keyboardType="numeric"
+                                label="Sunrise Time"
+                                value={formatTime(time)}
+                                onChangeText={onSunriseChange}
+                                vals={"min"}
+                                maxLen={9}
+                                disabled={false}
+                            /> */}
+                            <Button icon={'clock'} onPress={toggleTimepicker} mode='outlined'>{formatTime(time)}</Button>
+
 
                             {/* The DateTimePicker component, conditionally rendered */}
                             {showPicker && (
                                 <DateTimePicker
                                     testID="dateTimePicker"
                                     value={time}
-                                    mode="time" // <-- THE KEY CHANGE IS HERE
-                                    is24Hour={true} // Use false for AM/PM, true for 24-hour format
-                                    display="default" // On Android: 'default', 'clock', 'spinner'. On iOS, this is ignored.
+                                    mode="time"
+                                    is24Hour={true}
+                                    display="default"
                                     onChange={onChange}
                                 />
                             )}
@@ -196,31 +208,32 @@ export default function AddNewAlarmScreen() {
                         />
                         {/* <Button title='print updat' onPress={console.log(new Date(time).setMinutes(new Date(time).getMinutes() + 10))}></Button>*/}
                         <View style={[styles.formRow, { borderBottomWidth: 0 }]}>
-                            <Text style={styles.label}>Brightness</Text>
+                            <Text style={[styles.label, { color: theme.colors.onBackground }]}>Brightness</Text>
                             <View style={styles.sliderControl}>
-                                <MaterialCommunityIcons name="weather-night" size={24} color={Colors.accent} />
+                                <MaterialCommunityIcons name="weather-night" size={24} color={theme.colors.primary} />
                                 <Slider
                                     style={styles.slider}
                                     value={brightness}
                                     onValueChange={setBrightness}
                                     minimumValue={0}
                                     maximumValue={255}
-                                    minimumTrackTintColor={Colors.accent}
-                                    maximumTrackTintColor={Colors.small}
-                                    thumbTintColor="#FFFFFF"
+                                    minimumTrackTintColor={theme.colors.primary}
+                                    maximumTrackTintColor={theme.colors.surfaceVariant}
+                                    thumbTintColor={theme.colors.onSurfaceVariant}
                                 />
-                                <MaterialCommunityIcons name="white-balance-sunny" size={24} color={Colors.accent} />
+                                <MaterialCommunityIcons name="white-balance-sunny" size={24} color={theme.colors.primary} />
                             </View>
                         </View>
                     </View>
 
-                    <View style={{ flex: 1 }} />
-
-                    <TouchableOpacity style={styles.saveButton} onPress={storeData}>
-                        <Text style={styles.saveButtonText}>Save</Text>
-                    </TouchableOpacity>
+                    <Button mode='elevated' onPress={storeData} >Save</Button>
                 </View>
             </KeyboardAvoidingView>
+            <FAB
+                icon="close"
+                style={styles.fab}
+                onPress={onQuit}
+            />
         </SafeAreaView>
     );
 }
@@ -248,14 +261,13 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     container: {
-        backgroundColor: Colors.background,
         flex: 1,
         padding: 20,
         paddingTop: 60
     },
     content: {
         flex: 1,
-        paddingHorizontal: 25,
+        paddingBottom: 50,
     },
     header: {
         flexDirection: 'row',
@@ -301,16 +313,10 @@ const styles = StyleSheet.create({
         height: 40,
         marginHorizontal: 10,
     },
-    saveButton: {
-        backgroundColor: Colors.accent,
-        borderRadius: 15,
-        paddingVertical: 18,
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    saveButtonText: {
-        color: Colors.text,
-        fontSize: 18,
-        fontWeight: '500',
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 50,
     },
 });

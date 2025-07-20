@@ -1,98 +1,52 @@
-import { Colors } from '@/constants/colors';
-import { useFonts } from "expo-font";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, View } from 'react-native';
+import { Card, ProgressBar, Text, useTheme } from 'react-native-paper';
 
-export default function DeviceCard({ name, desc, percentage }) {
-    const [loaded, error] = useFonts({
-        WorkSansBold: require("@/assets/fonts/WorkSans-Bold.ttf"),
-        WorkSansRegular: require("@/assets/fonts/WorkSans-Regular.ttf"),
-    });
+export default function DeviceCard({ name, status, progress, onLongPress }) {
+    const theme = useTheme(); // Access theme colors
 
     return (
-        <View style={styles.card}>
-            <View style={styles.cardImage}>
-                <Image source={require("@/assets/images/Clock.png")} style={styles.image} />
-            </View>
-            <View style={styles.info}>
-                <Text style={styles.title}>{name}</Text>
-                <Text style={styles.desc}>{desc}</Text>
-                <View style={styles.percentageBox}>
-                    <View style={styles.circlesBox}>
-                        <View style={styles.fullCircle}></View>
-                        <View style={styles.fullCircle}></View>
-                        <View style={styles.emptyCircle}></View>
-                        <View style={styles.emptyCircle}></View>
-                        <View style={styles.emptyCircle}></View>
-                    </View>
-                    <Text style={styles.percentage}>{percentage}%</Text>
+        <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]} onLongPress={onLongPress}>
+            <View style={styles.cardContent}>
+                <Image
+                    source={require("@/assets/images/Clock.png")}
+                    style={styles.image}
+                    resizeMode="contain"
+                />
+                <View style={styles.info}>
+                    <Text variant="titleLarge" style={styles.title}>{name}</Text>
+                    <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{status}</Text>
+                    <ProgressBar
+                        progress={progress}
+                        style={[styles.progressBar, { backgroundColor: theme.colors.surface }]}
+
+                    />
                 </View>
             </View>
-        </View>
-    )
+        </Card>
+    );
 }
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: Colors.accent,
-        borderCurve: 15,
-        width: 301,
-        height: 146,
-        borderRadius: 20,
-        flexDirection: 'row'
+        width: '100%',
     },
-    cardImage: {
-        justifyContent: 'center',
+    cardContent: {
+        flexDirection: 'row',
+        padding: 16,
+        alignItems: 'center',
     },
     image: {
-        width: 123,
-        height: 123,
+        width: 80,
+        height: 80,
+        marginRight: 16,
     },
     info: {
-        justifyContent: 'center',
-        paddingBottom: 10
+        flex: 1,
     },
     title: {
-        fontSize: 32,
-        color: Colors.text,
-        fontFamily: "WorkSansBold",
-        marginBottom: 10,
-        textAlign: 'center'
+        marginBottom: 4,
     },
-    desc: {
-        fontSize: 16,
-        color: Colors.text,
-        fontFamily: "WorkSansRegular",
-        textAlign: 'center',
-        marginBottom: 5
+    progressBar: {
+        marginTop: 12,
     },
-    percentageBox: {
-        flexDirection: 'row',
-        marginLeft: 15
-    },
-    percentage: {
-        fontSize: 15,
-        color: Colors.text,
-        marginLeft: 'auto',
-        marginRight: 'auto'
-    },
-    circlesBox: {
-        flexDirection: 'row',
-        alignItems: "center",
-        gap: 2
-    },
-    emptyCircle: {
-        width: 12,
-        height: 12,
-        borderRadius: 100,
-        borderWidth: 2,
-        borderColor: Colors.text,
-    },
-    fullCircle: {
-        backgroundColor: Colors.text,
-        width: 12,
-        height: 12,
-        borderRadius: 100
-    },
-})
-
-
+});

@@ -1,16 +1,19 @@
 import { blink } from '@/components/lightUp';
 import { setupAllTasksAndPermissions } from '@/components/setupApp'; // Import it
+import { DarkTheme, LightTheme } from '@/constants/theme';
 import * as Notifications from 'expo-notifications'; // <--- 1. IMPORT Notifications
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native';
-
+import { useColorScheme } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? DarkTheme : LightTheme;
 
   useEffect(() => {
-
     setupAllTasksAndPermissions()
 
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
@@ -53,7 +56,7 @@ export default function RootLayout() {
     };
   }, []);
   return (
-    <>
+    <PaperProvider theme={theme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
@@ -61,7 +64,7 @@ export default function RootLayout() {
         <Stack.Screen name="newAlarm" options={{ headerShown: false }} />
         <Stack.Screen name='editAlarm' options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style="light" />
-    </>
+      <StatusBar style="auto" />
+    </PaperProvider>
   );
 }

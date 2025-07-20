@@ -1,13 +1,15 @@
 import { Colors } from '@/constants/colors';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Divider, Text, useTheme } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export default function PageHeader({ title, child, showClose, showPlus, plusAction, closeAction }) {
     const [loading] = useFonts({
         ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf')
     })
+    const theme = useTheme()
     const router = useRouter();
     return (
         <View style={styles.header} >
@@ -15,6 +17,7 @@ export default function PageHeader({ title, child, showClose, showPlus, plusActi
             <Text style={styles.title}>{title}</Text>
             {showPlus && <TouchableOpacity onPress={() => plusAction()} style={styles.addBtn}><MaterialIcons name={"add"} size={28} color={Colors.text} /></TouchableOpacity>}
             {child}
+            <Divider />
         </View>
     );
 }
@@ -23,17 +26,14 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingBottom: 5,
-        borderBottomWidth: 1,
-        borderColor: Colors.small,
-        justifyContent: 'center'
+        justifyContent: 'flex-start',
+        paddingLeft: 30,
+        paddingVertical: 20
     },
     title: {
-        fontFamily: "ShadowIntoLightRegular",
-        fontSize: 40,
-        color: Colors.text,
-        textAlign: 'center',
-        width: 'auto'
+        //fontFamily: "ShadowIntoLightRegular",
+        fontSize: 30,
+        textAlign: 'left'
     },
     addBtn: {
         position: 'absolute',

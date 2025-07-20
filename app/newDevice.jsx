@@ -2,7 +2,6 @@ import { InputWithLabel } from '@/components/InputWithLabel';
 import PageHeader from '@/components/ui/pageHeader';
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
@@ -10,10 +9,10 @@ import {
     Platform,
     SafeAreaView,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View
 } from 'react-native';
+import { Button, FAB, useTheme } from 'react-native-paper';
 
 export default function AddNewDeviceScreen() {
     const [ipAddress, setIpAddress] = useState('192.168.1.81');
@@ -21,16 +20,9 @@ export default function AddNewDeviceScreen() {
     const [color, setColor] = useState('#fff');
     const [devices, setDevices] = useState()
     const [pageState, setPagestate] = useState(false)
+
     const router = useRouter();
-
-
-    const [fontsLoaded] = useFonts({
-        ShadowsIntoLightRegular: require("@/assets/fonts/ShadowsIntoLight-Regular.ttf"),
-    });
-
-    if (!fontsLoaded) {
-        return null; // Or render a loading component
-    }
+    const theme = useTheme()
 
     function hexToRGB(hex) {
         let alpha = false;
@@ -101,13 +93,13 @@ export default function AddNewDeviceScreen() {
     useFocusEffect(getDevice)
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
 
-                <PageHeader title={pageState ? "New device" : "Edit device"} showClose={true} />
+                <PageHeader title={pageState ? "New device" : "Edit device"} />
 
                 <View style={styles.content}>
 
@@ -130,15 +122,18 @@ export default function AddNewDeviceScreen() {
                             <TouchableOpacity>
                             </TouchableOpacity>
                         </InputWithLabel>
+
+                        <Button mode='elevated' onPress={storeData}>
+                            Save
+                        </Button>
                     </View>
-
-                    <View style={{ flex: 1 }} />
-
-                    <TouchableOpacity style={styles.saveButton} onPress={storeData}>
-                        <Text style={styles.saveButtonText}>Save</Text>
-                    </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
+            <FAB
+                icon="close"
+                style={styles.fab}
+                onPress={() => router.back()}
+            />
         </SafeAreaView>
     );
 }
@@ -146,14 +141,12 @@ export default function AddNewDeviceScreen() {
 // --- StyleSheet ---
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background,
         flex: 1,
         padding: 20,
-        paddingTop: 60
+        paddingTop: 60,
     },
     content: {
         flex: 1,
-        paddingHorizontal: 25,
     },
     form: {
         marginTop: 30,
@@ -164,18 +157,6 @@ const styles = StyleSheet.create({
         height: 28,
         borderRadius: 14,
         marginLeft: 10,
-    },
-    saveButton: {
-        backgroundColor: '#FAD8C5',
-        borderRadius: 15,
-        paddingVertical: 18,
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    saveButtonText: {
-        color: Colors.text,
-        fontSize: 18,
-        fontWeight: '500',
     },
     tabBar: {
         flexDirection: 'row',
@@ -193,5 +174,11 @@ const styles = StyleSheet.create({
     tabLabel: {
         color: '#D4BBAA',
         fontSize: 12,
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 50,
     },
 });

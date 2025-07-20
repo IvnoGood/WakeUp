@@ -1,34 +1,25 @@
 // app/(tabs)/alarms.jsx (or wherever your HomeScreen is)
 
-import { handleAlarmMenuSelect } from "@/components/handleAlarmMenu";
-import { menuAlarmFavorite } from '@/components/menuAlarmFavorite';
 import AlarmCard from '@/components/ui/Alarm';
 import PageHeader from '@/components/ui/pageHeader';
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import {
-    Menu,
-    MenuOption,
-    MenuOptions,
-    MenuProvider,
-    MenuTrigger
-} from 'react-native-popup-menu';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { FAB, useTheme } from 'react-native-paper';
 
 export default function Alarms() {
     const iconColor = '#333'
     const [alarms, setAlarms] = useState()
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
+    const theme = useTheme()
+    const router = useRouter()
 
     const [fontsLoaded] = useFonts({
         ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
     });
-
 
     const getAlarms = useCallback(() => {
         async function fetchData() {
@@ -59,56 +50,41 @@ export default function Alarms() {
     }
 
     return (
-        <MenuProvider>
-            <View style={styles.container}>
-                <PageHeader title={"All Alarms"} showPlus={true} plusAction={async () => {
+        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <PageHeader title={"Alarm"} showPlus={false} />
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {alarms ? alarms.map((alarm) => (
+                    <View key={alarm.id} style={styles.cardRow}>
+                        <View style={{ flex: 1 }}>
+                            <AlarmCard
+                                alarm={alarm}
+                                device={devices}
+                                setAlarms={setAlarms}
+                                favorites={favorites}
+                                setFavorites={setFavorites}
+                                alarms={alarms}
+                                progress={0}
+                            />
+                        </View>
+                    </View>
+                )) : <Text style={[styles.noAlarm, { color: theme.colors.onBackground }]}>No alarms</Text>}
+            </ScrollView>
+            <FAB
+                icon="alarm-plus"
+                style={styles.fab}
+                onPress={async () => {
                     router.push('/newAlarm')
                     await AsyncStorage.removeItem('EditableContent')
-                }} />
-
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    {alarms ? alarms.map((alarm) => (
-                        <View key={alarm.id} style={styles.cardRow}>
-                            <View style={{ flex: 1 }}>
-                                <AlarmCard
-                                    alarm={alarm}
-                                    device={devices}
-                                />
-                            </View>
-                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites, alarms, setAlarms)}>
-                                <MenuTrigger>
-                                    <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
-                                </MenuTrigger>
-                                <MenuOptions optionsContainerStyle={styles.menuOptionsContainer}>
-                                    <MenuOption value="edit" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>Edit</Text>
-                                        <MaterialIcons name="edit" size={20} color={iconColor} />
-                                    </MenuOption>
-                                    <MenuOption value="duplicate" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>Duplicate</Text>
-                                        <MaterialIcons name="content-copy" size={20} color={iconColor} />
-                                    </MenuOption>
-                                    <MenuOption value="manageFavs" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>{menuAlarmFavorite(alarm, favorites)}</Text>
-                                        <MaterialIcons name="favorite" size={20} color={iconColor} />
-                                    </MenuOption>
-                                    <MenuOption value="delete" style={styles.menuOption}>
-                                        <Text style={[styles.menuOptionText, { color: 'red' }]}>Delete</Text>
-                                        <MaterialIcons name="delete" size={20} color="red" />
-                                    </MenuOption>
-                                </MenuOptions>
-                            </Menu>
-                        </View>
-                    )) : <Text style={styles.noAlarm}>No alarms</Text>}
-                </ScrollView>
-            </View>
-        </MenuProvider>
+                }}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background,
+        //backgroundColor: Colors.background,
         flex: 1,
         paddingHorizontal: 20,
         paddingTop: 60,
@@ -141,11 +117,17 @@ const styles = StyleSheet.create({
         color: '#333', // Dark gray is softer than pure black
     },
     noAlarm: {
-        fontFamily: 'ShadowIntoLightRegular',
-        color: Colors.text,
+        //fontFamily: 'ShadowIntoLightRegular',
+        //color: Colors.text,
         textTransform: 'capitalize',
         fontSize: 30,
         textAlign: 'center',
         marginTop: 100
-    }
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+    },
 });

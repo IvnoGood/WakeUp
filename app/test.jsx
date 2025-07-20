@@ -1,5 +1,6 @@
 // In some screen component like AddNewAlarmScreen.js
 import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
+import DeviceCard from "@/components/ui/DeviceCard";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
 import { Button, View } from 'react-native';
@@ -43,6 +44,7 @@ export default function AddNewAlarmScreen() {
     return (
         <View>
             <Button title="Send Test Notification in 5s" onPress={handleTestNotification} />
+            <DeviceCard progress={0} name={"Lorem ipsum"} status={"Light up never"} />
         </View>
     );
 }
