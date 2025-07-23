@@ -53,13 +53,13 @@ export default function HomeScreen() {
                 setFavorites(savedFavs)
                 //console.log("all favorites: ", savedFavs)
 
-                if (SavedDevices) {
+                if (SavedDevices !== null) {
                     setShowNewDevice(true)
 
                 }
                 console.log(SavedDevices)
             } catch (e) {
-                // error reading value
+                console.error('error reading value', e)
             }
         }
         GetDevices()
