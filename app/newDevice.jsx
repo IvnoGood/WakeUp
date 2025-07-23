@@ -1,6 +1,5 @@
 import { InputWithLabel } from '@/components/InputWithLabel';
 import PageHeader from '@/components/ui/pageHeader';
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -19,7 +18,7 @@ export default function AddNewDeviceScreen() {
     const [deviceName, setDeviceName] = useState('My lamp');
     const [color, setColor] = useState('#fff');
     const [devices, setDevices] = useState()
-    const [pageState, setPagestate] = useState(false)
+    const [pageState, setPagestate] = useState(true)
 
     const router = useRouter();
     const theme = useTheme()
@@ -79,10 +78,11 @@ export default function AddNewDeviceScreen() {
             try {
                 const rawDevice = await AsyncStorage.getItem('devices');
                 const savedDevice = rawDevice ? JSON.parse(rawDevice) : null;
-                if (savedDevice || savedDevice != []) {
+                if (savedDevice !== null) {
                     setIpAddress(savedDevice.ip)
                     setDeviceName(savedDevice.deviceName)
                     setColor(rgbToHex(savedDevice.color))
+                    setPagestate(false)
                 }
             } catch (e) {
                 console.error("Failed to fetch devices", e);
