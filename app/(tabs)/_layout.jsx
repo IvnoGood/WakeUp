@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     indicatorContainer: {
         position: 'absolute',
         top: 0,
-        bottom: 0,
+        bottom: -30,
         left: 2,
         width: '100%',
         alignItems: 'center',

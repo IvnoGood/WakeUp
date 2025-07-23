@@ -1,20 +1,18 @@
 import { blink } from '@/components/lightUp';
-import { setupAllTasksAndPermissions } from '@/components/setupApp'; // Import it
-import { DarkTheme, LightTheme } from '@/constants/theme';
-import * as Notifications from 'expo-notifications'; // <--- 1. IMPORT Notifications
+import { setupAllTasksAndPermissions } from '@/components/setupApp';
+import ThemeProvider, { useAppTheme } from '@/components/ThemeProvider';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native';
-import { useColorScheme } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const theme = colorScheme === 'dark' ? DarkTheme : LightTheme;
+function Layout() {
+  const { theme, setThemeName } = useAppTheme();
 
   useEffect(() => {
-    setupAllTasksAndPermissions()
 
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
     const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
@@ -55,7 +53,20 @@ export default function RootLayout() {
       subscription.remove();
     };
   }, []);
+  useEffect(() => {
+    async function GetData() {
+      try {
+        const rawFetchedInput = await AsyncStorage.getItem("AppTheme")
+        const fetchedInput = rawFetchedInput ? JSON.parse(rawFetchedInput) : new console.error("No theme in AsyncStorage");
+        setThemeName(fetchedInput)
+      } catch (e) {
+        console.error("Error thrown in layout", e)
+      }
+    }
+    GetData()
+  }, [])
   return (
+
     <PaperProvider theme={theme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -66,5 +77,17 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </PaperProvider>
+
   );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
+    setupAllTasksAndPermissions()
+  }, [])
+  return (
+    <ThemeProvider>
+      <Layout />
+    </ThemeProvider>
+  )
 }
