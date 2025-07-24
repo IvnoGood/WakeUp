@@ -1,3 +1,4 @@
+import CheckIfDevice from '@/components/CheckIfDevice';
 import '@/components/handleAlarmMenuMD3';
 import AlarmCard from "@/components/ui/Alarm";
 import DeviceCard from "@/components/ui/DeviceCard";
@@ -8,13 +9,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
-import { Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
 
 export default function HomeScreen() {
     const [devices, setDevices] = useState([]);
     const [favorites, setFavorites] = useState([]);
     const [visible, setVisible] = useState(false);
     const [showNewDevice, setShowNewDevice] = useState(false)
+    const [loading, setLoading] = useState(true)
 
 
     const openMenu = () => setVisible(true);
@@ -28,17 +30,6 @@ export default function HomeScreen() {
     }
     const editDevice = async () => {
         router.push('/newDevice')
-    }
-
-
-    async function GetDevices() {
-        try {
-            const RawSavedDevices = await AsyncStorage.getItem('devices')
-            const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
-            setDevices(SavedDevices)
-        } catch (e) {
-            // error reading value
-        }
     }
 
     const getData = useCallback(() => {
@@ -55,9 +46,10 @@ export default function HomeScreen() {
 
                 if (SavedDevices !== null) {
                     setShowNewDevice(true)
-
                 }
                 console.log(SavedDevices)
+                await CheckIfDevice()
+                setLoading(false)
             } catch (e) {
                 console.error('error reading value', e)
             }
@@ -66,6 +58,14 @@ export default function HomeScreen() {
 
     }, [])
     useFocusEffect(getData)
+
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.center, { backgroundColor: theme.colors.background }]}>
+                <ActivityIndicator animating={true} size="large" />
+            </View>
+        )
+    }
 
     return (
         <>
@@ -116,9 +116,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        paddingTop: 60
+        paddingTop: 60,
+        flex: 1
     },
-
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     noDevice: {
         color: Colors.text,
         fontSize: 20,

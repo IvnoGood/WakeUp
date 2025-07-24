@@ -74,6 +74,14 @@ function Layout() {
         <Stack.Screen name="newDevice" options={{ headerShown: false }} />
         <Stack.Screen name="newAlarm" options={{ headerShown: false }} />
         <Stack.Screen name='editAlarm' options={{ headerShown: false }} />
+
+        {/*--- Welcome layouts ---*/}
+        <Stack.Screen name='welcome/welcomeScreen' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/newDeviceIp' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/deviceScanner' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/newDevice' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/askForNoficationPermission' options={{ headerShown: false }} />
+
       </Stack>
       <StatusBar style="auto" />
     </PaperProvider>

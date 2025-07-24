@@ -1,33 +1,29 @@
 import { Colors } from '@/constants/colors';
 import {
-    StyleSheet,
-    View
+    StyleSheet
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 
-export function InputWithLabel({ label, value, onChangeText, placeholder, keyboardType, children, vals, maxLen, disabled }) {
+export function InputWithLabel({ label, value, onChangeText, placeholder, keyboardType, style, children, vals, maxLen, disabled }) {
     return (
-        <View style={styles.inputGroup}>
-            <TextInput
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={placeholder}
-                placeholderTextColor="#7D7C8A"
-                keyboardType={keyboardType || 'default'}
-                maxLength={maxLen}
-                mode='flat'
-                label={label}
-                disabled={disabled}
-                style={{ width: '100%' }}
-            />
-        </View>
+        <TextInput
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor="#7D7C8A"
+            keyboardType={keyboardType || 'default'}
+            maxLength={maxLen}
+            mode='flat'
+            label={label}
+            disabled={disabled}
+            style={[style, { width: '100%' }]}
+        />
     );
 };
 
 const styles = StyleSheet.create({
     inputGroup: {
         gap: 8,
-        marginRight: 50,
         width: '100%'
     },
     input: {

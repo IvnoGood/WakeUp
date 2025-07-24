@@ -52,11 +52,11 @@ export async function setupAllTasksAndPermissions() {
     console.log("Foreground notification handler set.");
 
     // 4. Request Permissions
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== 'granted') {
-        alert('Permission to send notifications was denied!');
-        return false;
-    }
-    console.log("Notification permissions granted.");
-    return true;
+    /*     const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Permission to send notifications was denied!');
+            return false;
+        }
+        console.log("Notification permissions granted.");
+        return true; */
 }

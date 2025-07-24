@@ -137,6 +137,13 @@ export default function SettingsScreen() {
                             onPress={async () => await AsyncStorage.removeItem('favs')}
                             left={() => <List.Icon icon={focusedIcons.delFavorites ? "delete-forever" : "delete-forever-outline"} />}
                         />
+                        <List.Item
+                            title="Delete New User options"
+                            onPressIn={() => toggleIconFocus('delNewUser')}
+                            onPressOut={() => toggleIconFocus('delNewUser')}
+                            onPress={async () => await AsyncStorage.removeItem('isNew')}
+                            left={() => <List.Icon icon={focusedIcons.delNewUser ? "delete-forever" : "delete-forever-outline"} />}
+                        />
                     </List.Section>
 
                     <List.Section>
@@ -155,7 +162,6 @@ export default function SettingsScreen() {
                 </ScrollView>
             </SafeAreaView>
 
-            {/* --- THEME PICKER MODAL --- */}
             <Modal
                 transparent={true}
                 visible={isThemeModalVisible}
