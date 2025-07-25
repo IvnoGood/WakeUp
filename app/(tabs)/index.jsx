@@ -27,6 +27,8 @@ export default function HomeScreen() {
     const deleteDevice = async () => {
         await AsyncStorage.removeItem('devices')
         setDevices(null)
+        setShowNewDevice(null)
+        router.push('/welcome/deviceScanner')
     }
     const editDevice = async () => {
         router.push('/newDevice')
