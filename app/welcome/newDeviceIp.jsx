@@ -1,8 +1,7 @@
-import { InputWithLabel } from '@/components/InputWithLabel';
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
-import { Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
+import { Button, HelperText, Icon, Text, TextInput, useTheme } from "react-native-paper";
 export default function SearchForDevices() {
     const [ipAddress, setIpAddress] = useState('');
     const [errors, setErrors] = useState(false)
@@ -40,10 +39,10 @@ export default function SearchForDevices() {
                 <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood')}>See how</Button>
             </View>
             <View style={{ alignItems: 'center', width: '100%', gap: 10 }}>
-                <InputWithLabel label="Ip adress:"
+                <TextInput label="Ip adress:"
                     value={ipAddress}
                     onChangeText={setIpAddress}
-                    style={{ maxWidth: 350 }}
+                    style={{ maxWidth: 350, width: '100%' }}
                 />
                 <HelperText type="error" visible={errors}>
                     Ip address can't be empty

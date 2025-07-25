@@ -1,4 +1,3 @@
-import { InputWithLabel } from '@/components/InputWithLabel';
 import PageHeader from '@/components/ui/pageHeader';
 import { Colors } from '@/constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,6 +17,7 @@ import {
     View
 } from 'react-native';
 import uuid from 'react-native-uuid';
+import { TextInput } from 'react-native-paper';
 
 // --- Main Screen Component ---
 export default function EditAlarm() {
@@ -97,7 +97,6 @@ export default function EditAlarm() {
         async function Fetch() {
             const rawAlarm = await AsyncStorage.getItem('EditableContent')
             const Alarm = rawAlarm ? JSON.parse(rawAlarm) : router.back()
-            console.log(Alarm)
             setName(Alarm.title)
             setSunriseTime(Alarm.sunriseTime)
             setBrightness(Alarm.brightness)
@@ -118,7 +117,7 @@ export default function EditAlarm() {
 
                 <View style={styles.content}>
                     <View style={styles.form}>
-                        <InputWithLabel label="Name" value={name} onChangeText={setName} />
+                        <TextInput label="Name" value={name} onChangeText={setName} />
                         <View style={styles.inputGroup}>
                             <Text style={styles.label}>Sunrise start</Text>
 
@@ -139,7 +138,7 @@ export default function EditAlarm() {
                                 />
                             )}
                         </View>
-                        <InputWithLabel
+                        <TextInput
                             keyboardType="numeric"
                             label="Sunrise time"
                             value={sunriseTime}

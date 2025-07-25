@@ -1,4 +1,3 @@
-import { InputWithLabel } from '@/components/InputWithLabel';
 import PageHeader from '@/components/ui/pageHeader';
 import { Colors } from '@/constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,7 +7,7 @@ import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Button, FAB, Text, useTheme } from "react-native-paper";
+import { Button, FAB, Text, useTheme, TextInput } from "react-native-paper";
 import uuid from 'react-native-uuid';
 
 import {
@@ -85,10 +84,8 @@ export default function AddNewAlarmScreen() {
                 const updatedDevicesArray = [...SavedDevices, DeviceData];
                 await AsyncStorage.setItem('alarms', JSON.stringify(updatedDevicesArray));
             } else {
-                console.log("modifying data")
                 const newArray = SavedDevices.filter(alarm => alarm.id !== savedAlarm.id)
                 const updatedDevicesArray = [...newArray, DeviceData];
-                console.log(updatedDevicesArray)
                 await AsyncStorage.setItem('alarms', JSON.stringify(updatedDevicesArray));
             }
             router.back()
@@ -116,12 +113,10 @@ export default function AddNewAlarmScreen() {
     };
 
     const onQuit = async () => {
-        console.log(savedAlarm)
         if (savedAlarm == null) {
             router.back()
         } else {
             await AsyncStorage.removeItem('EditableContent')
-            console.log(true)
             router.back()
         }
     }
@@ -143,7 +138,7 @@ export default function AddNewAlarmScreen() {
                     setTime(initialTime);
                     setSavedAlarm(Alarm)
                 } catch (e) {
-                    console.log("error happened", e)
+                    console.error("error happened", e)
                 }
             }
         }
@@ -165,7 +160,7 @@ export default function AddNewAlarmScreen() {
 
                 <View style={styles.content}>
                     <View style={styles.form}>
-                        <InputWithLabel label="Name" value={name} onChangeText={setName} />
+                        <TextInput label="Name" value={name} onChangeText={setName} />
                         <View style={styles.inputGroup}>
 
                             {/* The button that triggers showing the picker */}
@@ -174,7 +169,7 @@ export default function AddNewAlarmScreen() {
                             </TouchableOpacity> */}
                             {/*                             <TouchableOpacity onPress={toggleTimepicker} style={{ backgroundColor: 'red', position: 'absolute', width: '100%', height: 57, top: 0, right: 0 }}>
                             </TouchableOpacity>
-                            <InputWithLabel
+                            <TextInput
                                 keyboardType="numeric"
                                 label="Sunrise Time"
                                 value={formatTime(time)}
@@ -198,7 +193,7 @@ export default function AddNewAlarmScreen() {
                                 />
                             )}
                         </View>
-                        <InputWithLabel
+                        <TextInput
                             keyboardType="numeric"
                             label="Sunrise time"
                             value={sunriseTime}
@@ -206,7 +201,6 @@ export default function AddNewAlarmScreen() {
                             vals={"min"}
                             maxLen={9}
                         />
-                        {/* <Button title='print updat' onPress={console.log(new Date(time).setMinutes(new Date(time).getMinutes() + 10))}></Button>*/}
                         <View style={[styles.formRow, { borderBottomWidth: 0 }]}>
                             <Text style={[styles.label, { color: theme.colors.onBackground }]}>Brightness</Text>
                             <View style={styles.sliderControl}>

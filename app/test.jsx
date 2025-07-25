@@ -1,11 +1,10 @@
 // In some screen component like AddNewAlarmScreen.js
-import { InputWithLabel } from '@/components/InputWithLabel';
 import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
 import { useAppTheme } from '@/components/ThemeProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { Button, Text, TextInput } from 'react-native-paper';
 
 const alarm = {
     "brightness": 155.390625,
@@ -58,7 +57,7 @@ export default function AddNewAlarmScreen() {
     return (
         <ScrollView style={{ backgroundColor: theme.colors.background }}>
             <Button onPress={handleTestNotification} >Send Test Notification in 5s</Button>
-            <InputWithLabel value={input} onChangeText={setInput} />
+            <TextInput value={input} onChangeText={setInput} />
             <Button onPress={handleThemeChange} >Change theme</Button>
 
             <Text>{JSON.stringify(theme)}</Text>

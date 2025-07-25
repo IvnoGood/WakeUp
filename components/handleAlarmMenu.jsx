@@ -9,12 +9,11 @@ export const handleAlarmMenuSelect = async (value, alarmId, alarm, setFavorites,
             const RawSavedDevices = JSON.parse(await AsyncStorage.getItem('alarms'))
             const newArray = RawSavedDevices.filter(alarm => alarm.id !== alarmId)
             await AsyncStorage.setItem('alarms', JSON.stringify(newArray));
-            setAlarms ? setAlarms(newArray) : console.log("skipped setAlarms function bc not exist");
+            if (setAlarms) setAlarms(newArray)
 
             const newFavArray = favorites.filter(fav => alarm.id !== fav.id);
             await AsyncStorage.setItem('favs', JSON.stringify(newFavArray))
- 
-            console.log('completed succesfully');
+
             setFavorites(newFavArray)
         } catch (e) {
             console.error("error while deleting the fav", e)
@@ -33,7 +32,6 @@ export const handleAlarmMenuSelect = async (value, alarmId, alarm, setFavorites,
             if (isFav != -1) {
                 const newArray = favorites.filter(fav => alarm.id !== fav.id);
                 await AsyncStorage.setItem('favs', JSON.stringify(newArray))
-                console.log('completed succesfully');
                 setFavorites(newArray)
             } else {
                 const rawFavs = await AsyncStorage.getItem('favs')
@@ -42,7 +40,6 @@ export const handleAlarmMenuSelect = async (value, alarmId, alarm, setFavorites,
                 const newFavs = [...favs, alarm]
                 setFavorites(newFavs)
                 await AsyncStorage.setItem('favs', JSON.stringify(newFavs))
-                console.log("newfavs: ", newFavs)
             }
         } catch (e) {
             console.error("Error happened", e)
@@ -66,13 +63,10 @@ export const handleAlarmMenuSelect = async (value, alarmId, alarm, setFavorites,
             var newAlarm = { ...alarm }
             newAlarm.title = "Duplicated - " + alarm.title
             newAlarm.id = uuid.v4()
-            console.log("Alarms", alarms)
-            console.log("NewAlarm", newAlarm)
             const newAlarms = [...alarms, newAlarm]
             if (setAlarms != null) {
                 setAlarms(newAlarms)
             }
-            console.log(newAlarms)
             await AsyncStorage.setItem('alarms', JSON.stringify(newAlarms))
         } catch (e) {
             console.error('Error happened', e)

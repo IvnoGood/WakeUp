@@ -6,12 +6,9 @@ function sleep(ms) {
 
 export async function blink(devices, alarm) {
     try {
-        console.log("Started light sequence")
         const maxpower = Math.floor(alarm.brightness)
-        console.log(maxpower)
         const precision = 1
         const rawAlarmState = await AsyncStorage.getItem(alarm.id)
-        console.log("rawAlarmState", rawAlarmState)
         const alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : null
         if (alarmState === null) {
             console.error("Error while fetching data")
@@ -53,7 +50,6 @@ export async function blink(devices, alarm) {
                         .catch(error => console.error('Error:', error));
                     multiplier += 1
                     await sleep(1000 / precision);
-                    console.log("brightness", bright)
                 }
             }
         } else {

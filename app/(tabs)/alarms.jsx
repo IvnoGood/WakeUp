@@ -10,7 +10,6 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { FAB, useTheme } from 'react-native-paper';
 
 export default function Alarms() {
-    const iconColor = '#333'
     const [alarms, setAlarms] = useState()
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
@@ -31,7 +30,6 @@ export default function Alarms() {
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : [];
                 setFavorites(savedFavs)
-                /* console.log("all favorites: ", savedFavs) */
                 const rawDevices = await AsyncStorage.getItem('devices');
                 const savedDevices = rawDevices ? JSON.parse(rawDevices) : null;
                 setDevices(savedDevices)

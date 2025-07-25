@@ -1,4 +1,3 @@
-import { InputWithLabel } from '@/components/InputWithLabel';
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -11,7 +10,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { Button, FAB, useTheme } from 'react-native-paper';
+import { Button, FAB, useTheme, TextInput } from 'react-native-paper';
 
 export default function AddNewDeviceScreen() {
     const [ipAddress, setIpAddress] = useState('192.168.1.81');
@@ -104,24 +103,24 @@ export default function AddNewDeviceScreen() {
                 <View style={styles.content}>
 
                     <View style={styles.form}>
-                        <InputWithLabel
+                        <TextInput
                             label="Ip adress:"
                             value={ipAddress}
                             onChangeText={setIpAddress}
                         />
-                        <InputWithLabel
+                        <TextInput
                             label="Name:"
                             value={deviceName}
                             onChangeText={setDeviceName}
                         />
-                        <InputWithLabel
+                        <TextInput
                             label="Color:"
                             value={color}
                             onChangeText={setColor}
                         >
                             <TouchableOpacity>
                             </TouchableOpacity>
-                        </InputWithLabel>
+                        </TextInput>
 
                         <Button mode='elevated' onPress={storeData}>
                             Save

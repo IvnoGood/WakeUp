@@ -44,12 +44,10 @@ export default function HomeScreen() {
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : null;
                 setFavorites(savedFavs)
-                //console.log("all favorites: ", savedFavs)
 
                 if (SavedDevices !== null) {
                     setShowNewDevice(true)
                 }
-                console.log(SavedDevices)
                 await CheckIfDevice()
                 setLoading(false)
             } catch (e) {

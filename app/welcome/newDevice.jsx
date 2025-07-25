@@ -1,9 +1,8 @@
-import { InputWithLabel } from '@/components/InputWithLabel';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
+import { Button, HelperText, Icon, Text, useTheme, TextInput } from "react-native-paper";
 
 export default function SearchForDevices() {
     const [deviceName, setDeviceName] = useState('My lamp');
@@ -73,7 +72,7 @@ export default function SearchForDevices() {
             <View style={{ width: '100%', gap: 30 }}>
                 <View>
                     <Text style={styles.description}>Add a display name for your device eg: My Alarm</Text>
-                    <InputWithLabel
+                    <TextInput
                         label="Name:"
                         value={deviceName}
                         onChangeText={setDeviceName}
@@ -81,7 +80,7 @@ export default function SearchForDevices() {
                 </View>
                 <View>
                     <Text style={styles.description}>Enter a valid hex color for your lamp default color</Text>
-                    <InputWithLabel
+                    <TextInput
                         label="Color:"
                         value={color}
                         onChangeText={setColor}
