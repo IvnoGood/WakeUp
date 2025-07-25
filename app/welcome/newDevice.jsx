@@ -48,7 +48,7 @@ export default function SearchForDevices() {
             }
             await AsyncStorage.setItem('devices', JSON.stringify(DeviceData));
             await AsyncStorage.setItem('isNew', JSON.stringify(false));
-            await fetch(`http://${devices.ip}/json/state`, {
+            await fetch(`http://${ipAddress}/json/state`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
