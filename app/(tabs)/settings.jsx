@@ -96,7 +96,7 @@ export default function SettingsScreen() {
                         <List.Item
                             title="Test Light On/Off"
                             left={() => <List.Icon icon="lightbulb-on-outline" />}
-                            onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t" }) })}
+                            onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t", seg: [{ "col": [devices.color] }] }) })}
                         />
                         <List.Item
                             title="Test Sunrise Sequence"
