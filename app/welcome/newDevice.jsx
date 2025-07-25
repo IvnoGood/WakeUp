@@ -47,7 +47,16 @@ export default function SearchForDevices() {
                 color: rgbColor
             }
             await AsyncStorage.setItem('devices', JSON.stringify(DeviceData));
-            await AsyncStorage.setItem('isNew', JSON.stringify(false))
+            await AsyncStorage.setItem('isNew', JSON.stringify(false));
+            await fetch(`http://${devices.ip}/json/state`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ "bri": 122, transition: 4, seg: [{ "col": [rgbColor] }] }),
+            }).then(response => response.status)
+                // .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
             router.push("/")
         } catch (e) {
             console.error("Failed to save data to AsyncStorage", e);

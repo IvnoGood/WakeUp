@@ -81,6 +81,7 @@ function Layout() {
         <Stack.Screen name='welcome/deviceScanner' options={{ headerShown: false }} />
         <Stack.Screen name='welcome/newDevice' options={{ headerShown: false }} />
         <Stack.Screen name='welcome/askForNoficationPermission' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/testDeviceIP' options={{ headerShown: false }} />
 
       </Stack>
       <StatusBar style="auto" />

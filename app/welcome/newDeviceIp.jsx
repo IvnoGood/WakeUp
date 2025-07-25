@@ -23,7 +23,7 @@ export default function SearchForDevices() {
             return
         }
         router.push({
-            pathname: '/welcome/newDevice',
+            pathname: '/welcome/testDeviceIP',
             params: {
                 ipAddress: ipAddress
             }
