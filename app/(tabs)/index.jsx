@@ -1,4 +1,5 @@
 import CheckIfDevice from '@/components/CheckIfDevice';
+import getLightStatus from "@/components/getLightStatus";
 import '@/components/handleAlarmMenuMD3';
 import AlarmCard from "@/components/ui/Alarm";
 import DeviceCard from "@/components/ui/DeviceCard";
@@ -17,6 +18,8 @@ export default function HomeScreen() {
     const [visible, setVisible] = useState(false);
     const [showNewDevice, setShowNewDevice] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [deviceLoading, setDeviceLoading] = useState(true)
+    const [isOnline, setOnline] = useState(false)
 
 
     const openMenu = () => setVisible(true);
@@ -50,6 +53,14 @@ export default function HomeScreen() {
                 }
                 await CheckIfDevice()
                 setLoading(false)
+                const response = await getLightStatus(SavedDevices.ip)
+                console.log(response)
+                if (response.isConnected) {
+                    setOnline(response)
+                } else {
+                    setOnline(null)
+                }
+                setDeviceLoading(false)
             } catch (e) {
                 console.error('error reading value', e)
             }
@@ -71,8 +82,13 @@ export default function HomeScreen() {
         <>
             <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={'Devices'} />
-                {showNewDevice ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
-                    <DeviceCard progress={0} name={devices.deviceName} status={"Light up never"} onLongPress={openMenu} />
+                {!deviceLoading ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
+                    <DeviceCard
+                        progress={0}
+                        name={devices.deviceName}
+                        onLongPress={openMenu}
+                        status={isOnline !== null ? isOnline : false}
+                    />
                     <Menu
                         visible={visible}
                         onDismiss={closeMenu}
