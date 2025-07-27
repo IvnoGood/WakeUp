@@ -1,5 +1,5 @@
-import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/components/handleAlarmMenuMD3';
-import { menuAlarmFavorite } from '@/components/menuAlarmFavorite';
+import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/components/alarm/handleAlarmMenuMD3';
+import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';

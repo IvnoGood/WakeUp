@@ -1,6 +1,6 @@
-import { blink } from '@/components/lightUp';
-import { setupAllTasksAndPermissions } from '@/components/setupApp';
-import ThemeProvider, { useAppTheme } from '@/components/ThemeProvider';
+import { blink } from '@/components/light/lightUp';
+import { setupAllTasksAndPermissions } from '@/components/light/setupApp';
+import ThemeProvider, { useAppTheme } from '@/components/provider/ThemeProvider';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';

@@ -1,6 +1,6 @@
 // In some screen component like AddNewAlarmScreen.js
 import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import { useAppTheme } from '@/components/ThemeProvider';
+import { useAppTheme } from '@/components/provider/ThemeProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';

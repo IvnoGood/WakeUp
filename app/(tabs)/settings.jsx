@@ -1,7 +1,7 @@
 // app/(tabs)/settings.jsx
 
-import { useAppTheme } from '@/components/ThemeProvider';
-import { blink } from '@/components/lightUp';
+import { blink } from '@/components/light/lightUp';
+import { useAppTheme } from '@/components/provider/ThemeProvider';
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';

@@ -1,6 +1,6 @@
+import '@/components/alarm/handleAlarmMenuMD3';
 import CheckIfDevice from '@/components/CheckIfDevice';
-import getLightStatus from "@/components/getLightStatus";
-import '@/components/handleAlarmMenuMD3';
+import getLightStatus from "@/components/light/getLightStatus";
 import AlarmCard from "@/components/ui/Alarm";
 import DeviceCard from "@/components/ui/DeviceCard";
 import EmptyFetch from '@/components/ui/EmptyFetch';
