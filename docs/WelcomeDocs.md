@@ -2,9 +2,9 @@
 
 Table of contents:
 
-- [Why do we need notification access]()
+- [Why do we need notification access](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/findWLEDIp.md#why-do-we-need-notification-access)
 
-- [How to find WLED device ip]()
+- [How to find WLED device ip](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/findWLEDIp.md#how-to-find-wled-device-ip)
 
 # Why do we need notification access
 
@@ -42,13 +42,18 @@ To check that you can connect it to a computer go to the [WLED installation webs
 ### Method n°1
 
 To check the ip it can be done through the [WLED installation website](https://install.wled.me/) on the visit device button
-[!WARNING]Don't paste the whole link just use the IP address alone eg: http://192.168.1.170/#Colors → 192.168.1.170
+
+> [!WARNING]  
+> Don't paste the whole link just use the IP address alone eg: http://192.168.1.170/#Colors → 192.168.1.170
 
 ### Method n°2
 
 You can check it on your phone using the app Network Analyzer on android go to the LAN Scan tab and then scan your network
-[!WARNING]Make sure you're connected to the same network as your WLED device
-once the scan has finished check for device name like (wled-[some id]) grab it's IP and paste it on the app.
+
+> [!WARNING]  
+> Make sure you're connected to the same network as your WLED device
+
+Once the scan has finished check for device name like (wled-[some id]) grab it's IP and paste it on the app.
 
 ## Final Step
 
