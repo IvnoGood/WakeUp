@@ -43,6 +43,8 @@ export default function HomeScreen() {
     const getData = useCallback(() => {
         async function GetDevices() {
             try {
+                const isWelcome = await CheckIfDevice()
+                if (isWelcome) return
                 const RawSavedDevices = await AsyncStorage.getItem('devices')
                 const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
                 setDevices(SavedDevices)
@@ -54,7 +56,6 @@ export default function HomeScreen() {
                 if (SavedDevices !== null) {
                     setShowNewDevice(true)
                 }
-                await CheckIfDevice()
                 setLoading(false)
                 const response = await getLightStatus(SavedDevices.ip)
                 console.log(response)

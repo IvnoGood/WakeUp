@@ -7,9 +7,13 @@ const CheckIfHasDevice = async () => {
         const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
         if (SavedDevices === null) {
             router.push('welcome/welcomeScreen')
+            return true
+        } else {
+            false
         }
     } catch (e) {
         console.error('error reading value', e)
+        false
     }
 }
 
