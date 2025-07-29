@@ -36,7 +36,7 @@ export default function SearchForDevices() {
                 <Icon source={"home-search-outline"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>Input custom Ip addres</Text>
                 <Text style={styles.description}>The Ip address will be used to connect to your WLED device. If you can't/don't know how to see your device ip address see docs for more detail</Text>
-                <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood')}>See how</Button>
+                <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md')}>See how</Button>
             </View>
             <View style={{ alignItems: 'center', width: '100%', gap: 10 }}>
                 <TextInput label="Ip adress:"

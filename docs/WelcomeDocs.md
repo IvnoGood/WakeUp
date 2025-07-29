@@ -2,9 +2,9 @@
 
 Table of contents:
 
-- [Why do we need notification access](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/findWLEDIp.md#why-do-we-need-notification-access)
+- [Why do we need notification access](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md#why-do-we-need-notification-access)
 
-- [How to find WLED device ip](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/findWLEDIp.md#how-to-find-wled-device-ip)
+- [How to find WLED device ip](https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md#how-to-find-wled-device-ip)
 
 # Why do we need notification access
 

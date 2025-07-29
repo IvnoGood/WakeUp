@@ -68,7 +68,7 @@ export default function askForNotificationPermission() {
                     To start alarms correctly we need to access your notifications. Read the docs for more informations.
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 30 }}>
-                    <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={() => openURL("https://github.com/IvnoGood/WakeUp/blob/main/README.md")}>Open docs</Button>
+                    <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={() => openURL("https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md")}>Open docs</Button>
                     <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={getData}>Ask Permission</Button>
                 </View>
             </View>
