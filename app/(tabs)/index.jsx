@@ -31,9 +31,9 @@ export default function HomeScreen() {
     const { state, setState } = useLightState();
 
     const deleteDevice = async () => {
-        await AsyncStorage.removeItem('devices')
+        setDeviceLoading(true)
         setDevices(null)
-        setShowNewDevice(null)
+        await AsyncStorage.removeItem('devices')
         router.push('/welcome/deviceScanner')
     }
     const editDevice = async () => {
