@@ -9,7 +9,7 @@ import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card, Divider, Menu, ProgressBar, Switch, useTheme } from 'react-native-paper';
 
-export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress }) {
+export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state }) {
     const [isEnabled, setIsEnabled] = useState(alarm.initialIsActive);
     const [alarmFavTitle, setAlarmFavTitle] = useState("")
     const [alarmFavIcon, setAlarmFavIcon] = useState("")
@@ -167,6 +167,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
                     <Switch
                         value={isEnabled}
                         onValueChange={() => toggleSwitch()}
+                        disabled={!state}
                     />
                 </View>
 

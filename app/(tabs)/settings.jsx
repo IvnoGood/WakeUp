@@ -1,7 +1,9 @@
 // app/(tabs)/settings.jsx
 
 import { blink } from '@/components/light/lightUp';
+import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
+import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -22,6 +24,7 @@ export default function SettingsScreen() {
     const theme = useTheme();
     const router = useRouter();
     const { setThemeName } = useAppTheme();
+    const { state } = useLightState();
 
     const [devices, setDevices] = useState(null);
     const [themeFromStorage, setThemeFromStorage] = useState('');
@@ -90,20 +93,21 @@ export default function SettingsScreen() {
             <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={"Settings"} />
                 <ScrollView showsVerticalScrollIndicator={false}>
-
-                    <List.Section>
-                        <List.Subheader>Alarm Tests</List.Subheader>
-                        <List.Item
-                            title="Test Light On/Off"
-                            left={() => <List.Icon icon="lightbulb-on-outline" />}
-                            onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t", seg: [{ "col": [devices.color] }] }) })}
-                        />
-                        <List.Item
-                            title="Test Sunrise Sequence"
-                            left={() => <List.Icon icon="alarm-check" />}
-                            onPress={() => blink(devices, testAlarm)}
-                        />
-                    </List.Section>
+                    {state ? (
+                        <List.Section>
+                            <List.Subheader>Alarm Tests</List.Subheader>
+                            <List.Item
+                                title="Test Light On/Off"
+                                left={() => <List.Icon icon="lightbulb-on-outline" />}
+                                onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t", seg: [{ "col": [devices.color] }] }) })}
+                            />
+                            <List.Item
+                                title="Test Sunrise Sequence"
+                                left={() => <List.Icon icon="alarm-check" />}
+                                onPress={() => blink(devices, testAlarm)}
+                            />
+                        </List.Section>
+                    ) : (<></>)}
 
                     <List.Section>
                         <List.Subheader>Theme</List.Subheader>
@@ -195,6 +199,9 @@ export default function SettingsScreen() {
                     </Card>
                 </TouchableOpacity>
             </Modal>
+            {state ? (<></>) : (<View>
+                <DeviceSnackbar state={state} />
+            </View >)}
         </>
     );
 }

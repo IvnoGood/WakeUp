@@ -1,5 +1,6 @@
 // In some screen component like AddNewAlarmScreen.js
 import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
+import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
@@ -26,8 +27,10 @@ const device = {
 
 export default function AddNewAlarmScreen() {
     const { theme, setThemeName } = useAppTheme();
+    const { state, setState } = useLightState();
     const [input, setInput] = useState("")
-    console.warn("this is a test", theme)
+    console.warn(state)
+    //console.warn("this is a test", theme)
     useEffect(() => {
         // Make sure we have permissions when the screen loads
         requestNotificationPermissions();

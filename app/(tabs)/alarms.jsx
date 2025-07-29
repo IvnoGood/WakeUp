@@ -1,6 +1,8 @@
 // app/(tabs)/alarms.jsx (or wherever your HomeScreen is)
 
+import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from '@/components/ui/Alarm';
+import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
@@ -15,6 +17,7 @@ export default function Alarms() {
     const [devices, setDevices] = useState()
     const theme = useTheme()
     const router = useRouter()
+    const { state } = useLightState();
 
     const [fontsLoaded] = useFonts({
         ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
@@ -63,19 +66,24 @@ export default function Alarms() {
                                 setFavorites={setFavorites}
                                 alarms={alarms}
                                 progress={0}
+                                state={state}
                             />
                         </View>
                     </View>
                 )) : <Text style={[styles.noAlarm, { color: theme.colors.onBackground }]}>No alarms</Text>}
             </ScrollView>
-            <FAB
-                icon="alarm-plus"
-                style={styles.fab}
-                onPress={async () => {
-                    router.push('/newAlarm')
-                    await AsyncStorage.removeItem('EditableContent')
-                }}
-            />
+            {state ? (
+                <FAB
+                    icon="alarm-plus"
+                    style={styles.fab}
+                    onPress={async () => {
+                        router.push('/newAlarm')
+                        await AsyncStorage.removeItem('EditableContent')
+                    }}
+                />) : (<View>
+                    <DeviceSnackbar state={state} />
+                </View>
+            )}
         </View>
     );
 }

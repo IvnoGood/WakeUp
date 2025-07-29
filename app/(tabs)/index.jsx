@@ -1,8 +1,10 @@
 import '@/components/alarm/handleAlarmMenuMD3';
 import CheckIfDevice from '@/components/CheckIfDevice';
 import getLightStatus from "@/components/light/getLightStatus";
+import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from "@/components/ui/Alarm";
 import DeviceCard from "@/components/ui/DeviceCard";
+import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import EmptyFetch from '@/components/ui/EmptyFetch';
 import PageHeader from "@/components/ui/pageHeader";
 import { Colors } from '@/constants/colors';
@@ -26,6 +28,7 @@ export default function HomeScreen() {
     const closeMenu = () => setVisible(false);
 
     const theme = useTheme();
+    const { state, setState } = useLightState();
 
     const deleteDevice = async () => {
         await AsyncStorage.removeItem('devices')
@@ -57,6 +60,7 @@ export default function HomeScreen() {
                 console.log(response)
                 if (response.isConnected) {
                     setOnline(response)
+                    setState(true)
                 } else {
                     setOnline(null)
                 }
@@ -125,6 +129,9 @@ export default function HomeScreen() {
                     onPress={() => router.push('newDevice')}
                     style={styles.fab}
                 />)}
+            {state || deviceLoading ? (<></>) : (<View>
+                <DeviceSnackbar state={state} />
+            </View >)}
         </>
     )
 }

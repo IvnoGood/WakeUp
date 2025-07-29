@@ -1,5 +1,6 @@
 import { blink } from '@/components/light/lightUp';
 import { setupAllTasksAndPermissions } from '@/components/light/setupApp';
+import LightStateProvider from '@/components/provider/LightStateProvider';
 import ThemeProvider, { useAppTheme } from '@/components/provider/ThemeProvider';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from 'expo-notifications';
@@ -95,8 +96,10 @@ export default function RootLayout() {
     setupAllTasksAndPermissions()
   }, [])
   return (
-    <ThemeProvider>
-      <Layout />
-    </ThemeProvider>
+    <LightStateProvider>
+      <ThemeProvider>
+        <Layout />
+      </ThemeProvider>
+    </LightStateProvider>
   )
 }
