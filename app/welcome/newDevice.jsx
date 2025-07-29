@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from "react-native";
-import { Button, HelperText, Icon, Text, useTheme, TextInput } from "react-native-paper";
+import { Button, HelperText, Icon, Text, TextInput, useTheme } from "react-native-paper";
 
 export default function SearchForDevices() {
     const [deviceName, setDeviceName] = useState('My lamp');
@@ -90,7 +90,6 @@ export default function SearchForDevices() {
                     </HelperText>
                 </View>
             </View>
-            <Text>{ipAddress}</Text>
             <Button mode="contained" style={styles.boutons} onPress={storeData}>Finish</Button>
         </SafeAreaView>
     )
