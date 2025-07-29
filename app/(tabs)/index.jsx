@@ -120,7 +120,7 @@ export default function HomeScreen() {
                                 />
                             </View>
                         </View>
-                    )) : <EmptyFetch title={'No favorite alarm'} />}
+                    )) : <></>}
                 </ScrollView>
             </SafeAreaView>
             {showNewDevice ? (<></>) : (
