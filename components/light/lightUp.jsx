@@ -49,7 +49,7 @@ export async function blink(devices, alarm) {
                         // .then(data => console.log(data))
                         .catch(error => console.error('Error:', error));
                     multiplier += 1
-                    await sleep(1000 / precision);
+                    await sleep(60000 / precision);
                 }
             }
         } else {
