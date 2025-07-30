@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>WLED Simulator</title>
+    <style>
+      body {
+        background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        color: #fff;
+        font-family: "Segoe UI", Arial, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .container {
+        display: flex;
+        gap: 30px;
+        justify-content: center;
+        align-items: flex-start;
+        margin: 60px auto;
+        max-width: 1100px;
+        flex-wrap: wrap;
+      }
+      .main {
+        flex: 1;
+        min-width: 350px;
+        max-width: 600px;
+        border-radius: 18px;
+        padding: 32px 24px 24px 24px;
+      }
+      .led-strip {
+        margin: 40px auto 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+        background: #1a3c1a;
+        border-radius: 16px;
+        padding: 24px 18px;
+        box-shadow: 0 2px 16px #0008;
+        position: relative;
+        min-width: 520px;
+        border: 2px solid #2e5d2e;
+        overflow-x: auto;
+      }
+      .led-square {
+        width: 36px;
+        height: 36px;
+        background: #222;
+        border: 2px solid #aaa;
+        border-radius: 6px;
+        margin: 0 6px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px #000a, 0 0 0 2px #333;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .led-square.on {
+        border-color: #fff;
+        box-shadow: 0 0 16px 4px #fff8, 0 0 0 2px #333;
+      }
+      .led-die {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        background: #fff;
+        box-shadow: 0 0 12px 2px #fff8;
+        transition: background 0.3s, box-shadow 0.3s;
+      }
+      .led-square.off .led-die {
+        background: #444;
+        box-shadow: 0 0 4px 1px #222;
+      }
+      .led-square .led-label {
+        position: absolute;
+        bottom: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7em;
+        color: #b5b5b5;
+        letter-spacing: 1px;
+        user-select: none;
+        font-family: monospace;
+      }
+      .resistor {
+        width: 32px;
+        height: 10px;
+        background: #bfa76a;
+        border-radius: 4px;
+        margin: 0 2px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 4px #0007;
+      }
+      .resistor-band {
+        width: 3px;
+        height: 10px;
+        background: #a52a2a;
+        margin: 0 2px;
+        border-radius: 2px;
+      }
+      .resistor-band:nth-child(2) {
+        background: #000;
+      }
+      .resistor-band:nth-child(3) {
+        background: #ff0;
+      }
+      .resistor-band:nth-child(4) {
+        background: #a52a2a;
+      }
+      .pcb-trace {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #6fcf97 0%, #27ae60 100%);
+        border-radius: 2px;
+        z-index: 0;
+        transform: translateY(-50%);
+        opacity: 0.7;
+      }
+      h1 {
+        font-size: 2.2em;
+        font-weight: bold;
+        margin-bottom: 0.5em;
+        letter-spacing: 1px;
+        text-shadow: 0 2px 8px #0006;
+      }
+      #info {
+        font-size: 1.1em;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        color: #e0e0e0;
+        letter-spacing: 0.5px;
+      }
+      .logs-panel {
+        flex: 1;
+        min-width: 350px;
+        max-width: 500px;
+        border-radius: 18px;
+        padding: 24px 18px 18px 18px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+      .logs-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .logs-header h1 {
+        font-size: 1.3em;
+        margin: 0;
+        flex: 1;
+      }
+      #clearLogs {
+        height: 32px;
+        margin-left: auto;
+        cursor: pointer;
+        background: #333;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 0 16px;
+        font-size: 1em;
+        transition: background 0.2s;
+      }
+      #clearLogs:hover {
+        background: #555;
+      }
+      pre#logs {
+        text-align: left;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 5px;
+        font-size: 0.98em;
+        margin: 0;
+        padding: 0;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      code {
+        background: #222;
+        color: #b5f4a5;
+        border-radius: 5px;
+        padding: 2px 6px;
+        display: block;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="main">
+        <h1>WLED Simulator</h1>
+        <div id="info"></div>
+        <div class="led-strip" id="ledStrip">
+          <div class="pcb-trace"></div>
+        </div>
+      </div>
+      <div class="logs-panel">
+        <div class="logs-header">
+          <h1>Logs Output</h1>
+          <button id="clearLogs" onclick="clearLogs()">Clear logs</button>
+        </div>
+        <pre id="logs"></pre>
+      </div>
+    </div>
+    <script>
+      function clearLogs() {
+        document.getElementById("logs").innerHTML = "";
+      }
+
+      // Helper to get color safely
+      function getColor(state) {
+        if (
+          state.seg &&
+          Array.isArray(state.seg) &&
+          state.seg[0] &&
+          Array.isArray(state.seg[0].col) &&
+          state.seg[0].col[0] &&
+          Array.isArray(state.seg[0].col[0])
+        ) {
+          return state.seg[0].col[0];
+        }
+        // Default color if not set
+        return [255, 255, 255];
+      }
+
+      // Helper to get on/off state
+      function isOn(state) {
+        if (typeof state.on === "boolean") return state.on;
+        if (typeof state.on === "string")
+          return state.on === "t" || state.on === "true";
+        return true; // default ON
+      }
+
+      // Helper to get brightness
+      function getBri(state) {
+        if (typeof state.bri === "number") return state.bri;
+        return 255;
+      }
+
+      // Helper to get transition
+      function getTransition(state) {
+        if (typeof state.transition === "number") return state.transition;
+        return 4;
+      }
+
+      // Render LEDs with resistors and PCB trace
+      function renderLeds(color, on, bri) {
+        const ledStrip = document.getElementById("ledStrip");
+        // Remove all except the pcb-trace
+        ledStrip.innerHTML = '<div class="pcb-trace"></div>';
+        let displayColor = on
+          ? color.map((c) => Math.round((c * bri) / 255))
+          : [30, 30, 30]; // Dimmed when off
+        for (let i = 0; i < 10; i++) {
+          // LED
+          const led = document.createElement("div");
+          led.className = "led-square" + (on ? " on" : " off");
+          // LED die
+          const die = document.createElement("div");
+          die.className = "led-die";
+          die.style.background = `rgb(${displayColor[0]},${displayColor[1]},${displayColor[2]})`;
+          die.style.boxShadow = on
+            ? `0 0 12px 2px rgb(${displayColor[0]},${displayColor[1]},${displayColor[2]},0.7)`
+            : "0 0 4px 1px #222";
+          led.appendChild(die);
+          // Label
+          const label = document.createElement("span");
+          label.className = "led-label";
+          label.innerText = "LED" + (i + 1);
+          led.appendChild(label);
+          ledStrip.appendChild(led);
+
+          // Resistor (except after last LED)
+          if (i < 9) {
+            const resistor = document.createElement("div");
+            resistor.className = "resistor";
+            // Add color bands
+            for (let b = 0; b < 4; b++) {
+              const band = document.createElement("div");
+              band.className = "resistor-band";
+              resistor.appendChild(band);
+            }
+            ledStrip.appendChild(resistor);
+          }
+        }
+      }
+
+      // Info text
+      function renderInfo(state, color, on, bri, transition) {
+        document.getElementById("info").innerText = `État: ${
+          on ? "Allumé" : "Éteint"
+        } | Luminosité: ${bri} | Transition: ${transition} | Couleur: rgb(${
+          color[0]
+        },${color[1]},${color[2]})`;
+      }
+
+      // Logging
+      var prevValue = null;
+      const refresh = async () => {
+        try {
+          const res = await fetch("/state");
+          const state = await res.json();
+          const color = getColor(state);
+          const on = isOn(state);
+          const bri = getBri(state);
+          const transition = getTransition(state);
+
+          renderInfo(state, color, on, bri, transition);
+          renderLeds(color, on, bri);
+
+          if (JSON.stringify(prevValue) !== JSON.stringify(state)) {
+            const logs = document.getElementById("logs");
+            const codeTag = document.createElement("code");
+            codeTag.append(
+              `[${new Date().toLocaleTimeString()}] ` + JSON.stringify(state)
+            );
+            logs.append(codeTag);
+          }
+          prevValue = state;
+        } catch (e) {
+          document.getElementById("info").innerText =
+            "Erreur de connexion au serveur.";
+        }
+      };
+      setInterval(refresh, 500);
+      refresh();
+    </script>
+  </body>
+</html>

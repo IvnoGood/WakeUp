@@ -33,8 +33,6 @@ export async function requestNotificationPermissions() {
 
 export async function scheduleAlarmNotification(alarm, device) {
     // ... (Your logic to calculate triggerDate is here) ...
-    console.log(alarm)
-    console.log(device)
     const now = new Date();
     const [hours, minutes] = alarm.startTime.split(":");
     let triggerDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(minutes), 0);

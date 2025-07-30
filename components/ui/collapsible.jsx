@@ -3,7 +3,8 @@ import { Colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import React, { useState } from 'react';
-import { LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
+import { LayoutAnimation, Platform, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
+import { Text } from "react-native-paper";
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -58,10 +59,8 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1
     },
     summaryText: {
-        color: 'white',
-        fontSize: 30,
+        fontSize: 20,
         textTransform: 'capitalize',
-        fontFamily: 'ShadowIntoLightRegular'
     },
     detailsContainer: {
         padding: 15,

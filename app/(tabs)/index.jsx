@@ -1,49 +1,50 @@
-import { handleAlarmMenuSelect } from "@/components/handleAlarmMenu";
-import { menuAlarmFavorite } from '@/components/menuAlarmFavorite';
-import AlarmCard from '@/components/ui/Alarm';
+import '@/components/alarm/handleAlarmMenuMD3';
+import CheckIfDevice from '@/components/CheckIfDevice';
+import getLightStatus from "@/components/light/getLightStatus";
+import { useLightState } from '@/components/provider/LightStateProvider';
+import AlarmCard from "@/components/ui/Alarm";
 import DeviceCard from "@/components/ui/DeviceCard";
+import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
+import EmptyFetch from '@/components/ui/EmptyFetch';
+import PageHeader from "@/components/ui/pageHeader";
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFonts } from "expo-font";
-import { Link, router, useFocusEffect } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Menu, MenuOption, MenuOptions, MenuProvider, MenuTrigger } from 'react-native-popup-menu';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
 
 export default function HomeScreen() {
     const [devices, setDevices] = useState([]);
-    const [favorites, setFavorites] = useState([])
-
-    const [fontsLoaded] = useFonts({
-        ShadowsIntoLightRegular: require("@/assets/fonts/ShadowsIntoLight-Regular.ttf"),
-    });
-
-    const handleMenuSelect = async (value, deviceId) => {
-        if (value === 'delete') {
-            await AsyncStorage.removeItem('devices')
-            setDevices(null)
-        }
-        else if (value === 'edit') {
-            router.push('/newDevice')
-        }
-    };
+    const [favorites, setFavorites] = useState([]);
+    const [visible, setVisible] = useState(false);
+    const [showNewDevice, setShowNewDevice] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [deviceLoading, setDeviceLoading] = useState(true)
+    const [isOnline, setOnline] = useState(false)
 
 
-    async function GetDevices() {
-        try {
-            const RawSavedDevices = await AsyncStorage.getItem('devices')
-            const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
-            setDevices(SavedDevices)
-        } catch (e) {
-            // error reading value
-        }
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
+
+    const theme = useTheme();
+    const { state, setState } = useLightState();
+
+    const deleteDevice = async () => {
+        setDeviceLoading(true)
+        setDevices(null)
+        await AsyncStorage.removeItem('devices')
+        router.push('/welcome/deviceScanner')
+    }
+    const editDevice = async () => {
+        router.push('/newDevice')
     }
 
     const getData = useCallback(() => {
         async function GetDevices() {
             try {
+                const isWelcome = await CheckIfDevice()
+                if (isWelcome) return
                 const RawSavedDevices = await AsyncStorage.getItem('devices')
                 const SavedDevices = RawSavedDevices ? JSON.parse(RawSavedDevices) : null
                 setDevices(SavedDevices)
@@ -51,133 +52,108 @@ export default function HomeScreen() {
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : null;
                 setFavorites(savedFavs)
-                //console.log("all favorites: ", savedFavs)
+
+                if (SavedDevices !== null) {
+                    setShowNewDevice(true)
+                }
+                setLoading(false)
+                const response = await getLightStatus(SavedDevices.ip)
+                console.log(response)
+                if (response.isConnected) {
+                    setOnline(response)
+                    setState(true)
+                } else {
+                    setOnline(null)
+                }
+                setDeviceLoading(false)
             } catch (e) {
-                // error reading value
+                console.error('error reading value', e)
             }
         }
         GetDevices()
+
     }, [])
     useFocusEffect(getData)
 
-    if (!fontsLoaded) {
-        return null;
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.center, { backgroundColor: theme.colors.background }]}>
+                <ActivityIndicator animating={true} size="large" />
+            </View>
+        )
     }
 
     return (
-        <MenuProvider>
-            <View style={styles.container}>
-                <StatusBar style="light" />
-                <TouchableOpacity onPress={async () => { console.log(await AsyncStorage.getItem('devices')) }}>
-                    <Text>Get data</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={async () => { router.navigate('/test') }}>
-                    <Text>Open test page</Text>
-                </TouchableOpacity>
-                <Text style={styles.title}>Your devices: </Text>
-                <View style={styles.devicesContainer}>
-                    {devices ? (<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <DeviceCard name={devices.deviceName} />
-                        <Menu onSelect={(value) => handleMenuSelect(value, devices.deviceName)}>
-                            <MenuTrigger>
-                                <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
-                            </MenuTrigger>
-                            <MenuOptions optionsContainerStyle={styles.menuOptionsContainer}>
-                                <MenuOption value="edit" style={styles.menuOption}>
-                                    <Text style={styles.menuOptionText}>Edit</Text>
-                                    <MaterialIcons name="edit" size={20} color={'#333'} />
-                                </MenuOption>
-                                <MenuOption value="delete" style={styles.menuOption}>
-                                    <Text style={[styles.menuOptionText, { color: 'red' }]}>Delete</Text>
-                                    <MaterialIcons name="delete" size={20} color="red" />
-                                </MenuOption>
-                            </MenuOptions>
-                        </Menu>
-                    </View>
-                    ) : (<Link style={styles.addBtn} href={"/newDevice"}>
-                        <MaterialIcons name="add" size={28} color="white" style={styles.menuIcon} />
-                    </Link>)}
+        <>
+            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                <PageHeader title={'Devices'} />
+                {!deviceLoading ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
+                    <DeviceCard
+                        progress={0}
+                        name={devices.deviceName}
+                        onLongPress={openMenu}
+                        status={isOnline !== null ? isOnline : false}
+                    />
+                    <Menu
+                        visible={visible}
+                        onDismiss={closeMenu}
+                        anchor={<Button onPress={openMenu}></Button>}>
+                        <Menu.Item leadingIcon="pencil" onPress={() => { editDevice(); closeMenu() }} title="Edit" />
+                        <Divider />
+                        <Menu.Item leadingIcon="delete" onPress={() => deleteDevice()} title="Delete" />
+                    </Menu>
                 </View>
+                ) : (<EmptyFetch title={'No Device'} />)}
 
-                <View style={styles.line}></View>
-
-                <Text style={styles.title}>Favorites Alarms:</Text>
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <Text title={'Favorites'} style={{ fontSize: 20, color: theme.colors.onBackground, marginTop: 20, marginLeft: 15 }}>Favorites</Text>
+                <ScrollView showsVerticalScrollIndicator={false} style={styles.ScrollView}>
                     {favorites ? favorites.map((alarm) => (
                         <View key={alarm.id} style={styles.cardRow}>
                             <View style={{ flex: 1 }}>
                                 <AlarmCard
-                                    title={alarm.title}
-                                    subtitle={alarm.subtitle}
-                                    startTime={alarm.startTime}
-                                    endTime={alarm.endTime}
-                                    initialIsActive={alarm.initialIsActive}
+                                    alarm={alarm}
+                                    device={devices}
+                                    setAlarms={null}
+                                    favorites={favorites}
+                                    setFavorites={setFavorites}
+                                    alarms={null}
+                                    progress={0}
                                 />
                             </View>
-                            <Menu onSelect={(value) => handleAlarmMenuSelect(value, alarm.id, alarm, setFavorites, favorites, null, null)}>
-                                <MenuTrigger>
-                                    <MaterialIcons name="more-vert" size={28} color={Colors.text} style={styles.menuIcon} />
-                                </MenuTrigger>
-                                <MenuOptions optionsContainerStyle={styles.menuOptionsContainer}>
-                                    <MenuOption value="edit" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>Edit</Text>
-                                        <MaterialIcons name="edit" size={20} color={'#333'} />
-                                    </MenuOption>
-                                    <MenuOption value="duplicate" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>Duplicate</Text>
-                                        <MaterialIcons name="content-copy" size={20} color={'#333'} />
-                                    </MenuOption>
-                                    <MenuOption value="manageFavs" style={styles.menuOption}>
-                                        <Text style={styles.menuOptionText}>{menuAlarmFavorite(alarm, favorites)}</Text>
-                                        <MaterialIcons name="favorite" size={20} color={'#333'} />
-                                    </MenuOption>
-                                    <MenuOption value="delete" style={styles.menuOption}>
-                                        <Text style={[styles.menuOptionText, { color: 'red' }]}>Delete</Text>
-                                        <MaterialIcons name="delete" size={20} color="red" />
-                                    </MenuOption>
-                                </MenuOptions>
-                            </Menu>
                         </View>
-                    )) : <Text style={styles.noFavs}>No favorites added</Text>}
+                    )) : <></>}
                 </ScrollView>
-            </View>
-        </MenuProvider>
+            </SafeAreaView>
+            {showNewDevice ? (<></>) : (
+                <FAB
+                    icon="lamp"
+                    onPress={() => router.push('newDevice')}
+                    style={styles.fab}
+                />)}
+            {state || deviceLoading ? (<></>) : (<View>
+                <DeviceSnackbar state={state} />
+            </View >)}
+        </>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: Colors.background,
-        flex: 1,
         padding: 20,
-        paddingTop: 40,
+        paddingTop: 60,
+        flex: 1
     },
-    devicesContainer: {
-        flexDirection: 'row',
+    center: {
+        justifyContent: 'center',
         alignItems: 'center',
-        minHeight: 100
     },
-    addBtn: {
-        borderWidth: 2,
-        borderColor: Colors.text,
-        borderRadius: 100,
-        marginLeft: 20,
-        marginLeft: 'auto',
-        marginRight: 'auto'
-    },
-    title: {
-        fontSize: 40,
+    noDevice: {
         color: Colors.text,
-        fontFamily: "ShadowsIntoLightRegular",
-        marginBottom: 15
-    },
-    line: {
-        width: "100%",
-        borderColor: Colors.text,
-        borderWidth: 0,
-        borderTopWidth: 1,
-        marginTop: 10,
-        marginBottom: 10
+        fontSize: 20,
+        textTransform: 'capitalize',
+        textAlign: 'center',
+        width: '100%',
+        marginVertical: 'auto'
     },
     cardRow: {
         flexDirection: 'row',
@@ -185,34 +161,20 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: 20,
     },
-    menuIcon: {
-        marginLeft: 8,
-    },
-    // Styles for the popup menu itself for a custom look
-    menuOptionsContainer: {
-        backgroundColor: '#F5EFE6', // Soft, light color that fits your theme
-        borderRadius: 12,
-        marginTop: 35, // Push it down from the icon
-        width: 170, // Give it a consistent width
-    },
-    menuOption: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-    },
-    menuOptionText: {
-        fontSize: 16,
-        color: '#333', // Dark gray is softer than pure black
-    },
     noFavs: {
-        fontFamily: 'ShadowIntoLightRegular',
-        color: Colors.text,
-        textTransform: 'capitalize',
+        //fontFamily: 'ShadowIntoLightRegular',
         fontSize: 30,
+        textTransform: 'capitalize',
         textAlign: 'center',
-        marginTop: 100
-    }
-    // Note: The contextView style isn't needed anymore with the new menuOption style
+        marginTop: 100,
+    },
+    ScrollView: {
+        height: '100%'
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+    },
 });

@@ -6,8 +6,6 @@ import * as TaskManager from 'expo-task-manager';
 const ALARM_WAKE_UP_TASK = 'ALARM_WAKE_UP_TASK';
 
 export async function setupAllTasksAndPermissions() {
-    console.log("Setting up all tasks and permissions...");
-
     // 1. Define the Task
     // Check if task is already defined to avoid re-defining on hot reloads
     if (!TaskManager.isTaskDefined(ALARM_WAKE_UP_TASK)) {
@@ -38,7 +36,6 @@ export async function setupAllTasksAndPermissions() {
         { identifier: 'snooze', buttonTitle: 'Snooze (9 min)' },
         { identifier: 'stop', buttonTitle: 'Stop', options: { isDestructive: true } },
     ]);
-    console.log("Notification category 'alarm' set.");
 
     // 3. Set Foreground Handler
     Notifications.setNotificationHandler({
@@ -49,14 +46,4 @@ export async function setupAllTasksAndPermissions() {
             shouldSetBadge: false,
         }),
     });
-    console.log("Foreground notification handler set.");
-
-    // 4. Request Permissions
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== 'granted') {
-        alert('Permission to send notifications was denied!');
-        return false;
-    }
-    console.log("Notification permissions granted.");
-    return true;
 }

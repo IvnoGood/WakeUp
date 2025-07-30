@@ -4,6 +4,6 @@ export const menuAlarmFavorite = (alarm, favorites) => {
 
     const isFav = strFavs.indexOf(strAlarm)
     if (isFav != -1) {
-        return 'Remove favorite'
-    } else { return 'Add to favorites' }
+        return ['Remove favorite', 'heart-off']
+    } else { return ['Favorite', 'heart'] }
 }

@@ -1,17 +1,19 @@
-import { blink } from '@/components/lightUp';
-import { setupAllTasksAndPermissions } from '@/components/setupApp'; // Import it
-import * as Notifications from 'expo-notifications'; // <--- 1. IMPORT Notifications
+import { blink } from '@/components/light/lightUp';
+import { setupAllTasksAndPermissions } from '@/components/light/setupApp';
+import LightStateProvider from '@/components/provider/LightStateProvider';
+import ThemeProvider, { useAppTheme } from '@/components/provider/ThemeProvider';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native';
+import { PaperProvider } from 'react-native-paper';
 
-
-export default function RootLayout() {
+function Layout() {
+  const { theme, setThemeName } = useAppTheme();
 
   useEffect(() => {
-
-    setupAllTasksAndPermissions()
 
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
     const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
@@ -52,16 +54,52 @@ export default function RootLayout() {
       subscription.remove();
     };
   }, []);
+  useEffect(() => {
+    async function GetData() {
+      try {
+        const rawFetchedInput = await AsyncStorage.getItem("AppTheme")
+        const fetchedInput = rawFetchedInput ? JSON.parse(rawFetchedInput) : new console.error("No theme in AsyncStorage");
+        setThemeName(fetchedInput)
+      } catch (e) {
+        console.error("Error thrown in layout", e)
+      }
+    }
+    GetData()
+  }, [])
   return (
-    <>
+
+    <PaperProvider theme={theme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
         <Stack.Screen name="newDevice" options={{ headerShown: false }} />
         <Stack.Screen name="newAlarm" options={{ headerShown: false }} />
         <Stack.Screen name='editAlarm' options={{ headerShown: false }} />
+
+        {/*--- Welcome layouts ---*/}
+        <Stack.Screen name='welcome/welcomeScreen' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/newDeviceIp' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/deviceScanner' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/newDevice' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/askForNoficationPermission' options={{ headerShown: false }} />
+        <Stack.Screen name='welcome/testDeviceIP' options={{ headerShown: false }} />
+
       </Stack>
-      <StatusBar style="light" />
-    </>
+      <StatusBar style="auto" />
+    </PaperProvider>
+
   );
+}
+
+export default function RootLayout() {
+  useEffect(() => {
+    setupAllTasksAndPermissions()
+  }, [])
+  return (
+    <LightStateProvider>
+      <ThemeProvider>
+        <Layout />
+      </ThemeProvider>
+    </LightStateProvider>
+  )
 }
