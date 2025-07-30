@@ -8,6 +8,8 @@ export default function SearchForDevices() {
     const [deviceName, setDeviceName] = useState('My lamp');
     const [color, setColor] = useState('#fff');
     const [colorError, setColorError] = useState(false)
+    const [isBtnLoading, setIsBtnLoading] = useState(false)
+    const [btnTitle, setBtnTitle] = useState("Finish")
 
     const theme = useTheme()
     const router = useRouter()
@@ -32,6 +34,8 @@ export default function SearchForDevices() {
 
     const storeData = async () => {
         try {
+            setIsBtnLoading(true)
+            setBtnTitle("Loading")
             let rgbColor
             if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(color)) {
                 rgbColor = hexToRGB(color)
@@ -57,6 +61,8 @@ export default function SearchForDevices() {
                 // .then(data => console.log(data))
                 .catch(error => console.error('Error:', error));
             router.push("/")
+            setIsBtnLoading(false)
+            setBtnTitle("Finish")
         } catch (e) {
             console.error("Failed to save data to AsyncStorage", e);
             alert("Failed to save device. Please try again.", e);
@@ -90,7 +96,7 @@ export default function SearchForDevices() {
                     </HelperText>
                 </View>
             </View>
-            <Button mode="contained" style={styles.boutons} onPress={storeData}>Finish</Button>
+            <Button mode="contained" style={styles.boutons} onPress={storeData} loading={isBtnLoading}>{btnTitle}</Button>
         </SafeAreaView>
     )
 }
