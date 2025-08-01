@@ -13,9 +13,6 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
     const [alarmFavTitle, setAlarmFavTitle] = useState("")
     const [alarmFavIcon, setAlarmFavIcon] = useState("")
     const theme = useTheme()
-    // Custom colors for the Switch component to match the design
-    const trackColor = { false: '#E6C4B4', true: '#F5E6C4' };
-    const thumbColor = isEnabled ? '#E0C990' : '#E0C990';
 
     const [visible, setVisible] = useState(false)
     const openMenu = () => setVisible(true);
@@ -123,7 +120,6 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             const [title, icon] = menuAlarmFavorite(alarm, favorites)
             setAlarmFavTitle(title)
             setAlarmFavIcon(icon)
-            console.log(title, icon)
         }
         fetchData();
     }, [favorites]);

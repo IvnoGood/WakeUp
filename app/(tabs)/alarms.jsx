@@ -1,5 +1,3 @@
-// app/(tabs)/alarms.jsx (or wherever your HomeScreen is)
-
 import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
