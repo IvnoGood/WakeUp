@@ -8,7 +8,7 @@ const getLightStatus = async (ipAddress) => {
             return { isConnected: true, response: data }
         })
         .catch((e) => {
-            console.log(e)
+            console.log("Error while getting device status", e)
             return { isConnected: false, response: null }
         })
 }

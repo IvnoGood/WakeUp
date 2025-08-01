@@ -16,7 +16,11 @@ export default function SearchForDevices() {
                 try {
                     var response
                     await fetch(`http://${ipAddress}/json/state`, {
-                        method: 'POST', body: JSON.stringify({ "on": "t" })
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ "on": 't' })
                     }).then(response => response.json())
                         .then(data => { response = data })
                         .catch((e) => { console.error(e); setErrors(true) })
@@ -32,7 +36,11 @@ export default function SearchForDevices() {
                 }
             }
             fetch(`http://${ipAddress}/json/state`, {
-                method: 'POST', body: JSON.stringify({ "on": true })
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "on": true })
             }).catch((e) => console.error(e))
             setFinished(true)
         }
