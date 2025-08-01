@@ -1,5 +1,4 @@
 const getLightStatus = async (ipAddress) => {
-    console.log(ipAddress)
     return await fetch(`http://${ipAddress}/json/info`)
         .then((res) => {
             return res.json();

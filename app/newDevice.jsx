@@ -7,10 +7,9 @@ import {
     Platform,
     SafeAreaView,
     StyleSheet,
-    TouchableOpacity,
     View
 } from 'react-native';
-import { Button, FAB, useTheme, TextInput } from 'react-native-paper';
+import { Button, FAB, TextInput, useTheme } from 'react-native-paper';
 
 export default function AddNewDeviceScreen() {
     const [ipAddress, setIpAddress] = useState('192.168.1.81');
@@ -118,8 +117,6 @@ export default function AddNewDeviceScreen() {
                             value={color}
                             onChangeText={setColor}
                         >
-                            <TouchableOpacity>
-                            </TouchableOpacity>
                         </TextInput>
 
                         <Button mode='elevated' onPress={storeData}>

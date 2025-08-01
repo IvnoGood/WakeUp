@@ -58,7 +58,6 @@ export default function HomeScreen() {
                 }
                 setLoading(false)
                 const response = await getLightStatus(SavedDevices.ip)
-                console.log(response)
                 if (response.isConnected) {
                     setOnline(response)
                     setState(true)
