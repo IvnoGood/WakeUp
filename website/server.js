@@ -1,4 +1,5 @@
 const express = require("express");
+const data = require("./sample.json");
 const app = express();
 const port = 3000;
 
@@ -25,6 +26,10 @@ app.post("/json/state", (req, res) => {
     ledState.seg = req.body.seg;
   }
   res.status(200).json({ success: true });
+});
+
+app.get("/json/info", (res) => {
+  res.status(200).json(data.info);
 });
 
 app.get("/state", (req, res) => {
