@@ -40,7 +40,7 @@ export default function HomeScreen() {
         router.push('/newDevice')
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     const getData = useCallback(() => {
         async function GetDevices() {
             try {
@@ -72,7 +72,7 @@ export default function HomeScreen() {
         }
         GetDevices()
 
-    })
+    }, [])
     useFocusEffect(getData)
 
     if (loading) {
@@ -118,6 +118,7 @@ export default function HomeScreen() {
                                     setFavorites={setFavorites}
                                     alarms={null}
                                     progress={0}
+                                    state={state}
                                 />
                             </View>
                         </View>

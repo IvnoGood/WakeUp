@@ -3,7 +3,7 @@ export const menuAlarmFavorite = (alarm, favorites) => {
     const strFavs = JSON.stringify(favorites)
 
     const isFav = strFavs.indexOf(strAlarm)
-    if (isFav != -1) {
+    if (isFav !== -1) {
         return ['Remove favorite', 'heart-off']
     } else { return ['Favorite', 'heart'] }
 }

@@ -4,8 +4,7 @@ import { scheduleAlarmNotification } from '@/components/notifications'; // Assum
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card, Divider, Menu, ProgressBar, Switch, useTheme } from 'react-native-paper';
 
@@ -119,8 +118,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
         }
     }
 
-
-    const getAlarms = useCallback(() => {
+    useEffect(() => {
         async function fetchData() {
             const [title, icon] = menuAlarmFavorite(alarm, favorites)
             setAlarmFavTitle(title)
@@ -128,8 +126,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             console.log(title, icon)
         }
         fetchData();
-    }, []);
-    useFocusEffect(getAlarms)
+    }, [favorites]);
 
     return (
         <View style={{ flexDirection: 'row-reverse' }}>
