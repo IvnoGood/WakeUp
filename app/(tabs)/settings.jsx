@@ -148,6 +148,13 @@ export default function SettingsScreen() {
                             onPress={async () => await AsyncStorage.removeItem('isNew')}
                             left={() => <List.Icon icon={focusedIcons.delNewUser ? "delete-forever" : "delete-forever-outline"} />}
                         />
+                        <List.Item
+                            title="Delete Current Theme"
+                            onPressIn={() => toggleIconFocus('delTheme')}
+                            onPressOut={() => toggleIconFocus('delTheme')}
+                            onPress={async () => await AsyncStorage.removeItem('AppTheme')}
+                            left={() => <List.Icon icon={focusedIcons.delTheme ? "delete-forever" : "delete-forever-outline"} />}
+                        />
                     </List.Section>
 
                     <List.Section>

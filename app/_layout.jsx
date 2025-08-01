@@ -58,7 +58,15 @@ function Layout() {
     async function GetData() {
       try {
         const rawFetchedInput = await AsyncStorage.getItem("AppTheme")
-        const fetchedInput = rawFetchedInput ? JSON.parse(rawFetchedInput) : new console.error("No theme in AsyncStorage");
+        console.log(rawFetchedInput)
+        var fetchedInput
+        if (rawFetchedInput) {
+          fetchedInput = JSON.parse(rawFetchedInput)
+        } else {
+          console.warn("No theme in AsyncStorage");
+          await AsyncStorage.setItem("AppTheme", JSON.stringify("Classic"))
+          fetchedInput = "Classic"
+        }
         setThemeName(fetchedInput)
       } catch (e) {
         console.error("Error thrown in layout", e)
