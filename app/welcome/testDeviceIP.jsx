@@ -1,6 +1,6 @@
 import sleep from '@/components/delay';
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { SafeAreaView, StyleSheet, View } from "react-native";
 import { Button, Icon, ProgressBar, Text, useTheme } from "react-native-paper";
 export default function SearchForDevices() {
@@ -9,12 +9,14 @@ export default function SearchForDevices() {
     const theme = useTheme()
     const router = useRouter()
     const { ipAddress } = useLocalSearchParams();
-    useEffect(() => {
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useFocusEffect(useCallback(() => {
         async function doBlink() {
 
             for (let i = 0; i < 4; i++) {
                 try {
-                    var response
+                    let response
                     await fetch(`http://${ipAddress}/json/state`, {
                         method: 'POST',
                         headers: {
@@ -45,14 +47,14 @@ export default function SearchForDevices() {
             setFinished(true)
         }
         doBlink()
-    }, [])
+    },[]))
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"alarm-check"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>WLED device check</Text>
-                <Text style={styles.description}>Currently making your device blink if not try go back and change it's IP address</Text>
+                <Text style={styles.description}>Currently making your device blink if not try go back and change it&apos;s IP address</Text>
             </View>
             {/*--- Check if finished ---*/}
             {errors ? (<View style={{ alignItems: 'center' }}>

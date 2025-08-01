@@ -59,7 +59,7 @@ function Layout() {
       try {
         const rawFetchedInput = await AsyncStorage.getItem("AppTheme")
         console.log(rawFetchedInput)
-        var fetchedInput
+        let fetchedInput
         if (rawFetchedInput) {
           fetchedInput = JSON.parse(rawFetchedInput)
         } else {

@@ -10,7 +10,7 @@ import PageHeader from "@/components/ui/pageHeader";
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
 
@@ -40,6 +40,7 @@ export default function HomeScreen() {
         router.push('/newDevice')
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const getData = useCallback(() => {
         async function GetDevices() {
             try {
@@ -71,7 +72,7 @@ export default function HomeScreen() {
         }
         GetDevices()
 
-    }, [])
+    })
     useFocusEffect(getData)
 
     if (loading) {

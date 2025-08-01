@@ -5,9 +5,7 @@ import { useEffect, useState } from "react";
 import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
 
-export default function askForNotificationPermission() {
-    const [isNew, setIsNew] = useState(false)
-    const [status, setStatus] = useState()
+export default function AskForNotificationPermission() {
     const [disabled, setDisabled] = useState(true)
     const [loading, setLoading] = useState(true)
     const theme = useTheme()
@@ -23,12 +21,10 @@ export default function askForNotificationPermission() {
         const { status } = await Notifications.requestPermissionsAsync();
         if (status !== 'granted') {
             alert('Permission to send notifications was denied!');
-            setStatus(status)
             setDisabled(true)
             return false;
         } else {
             console.warn("Notification permissions granted.");
-            setStatus(status)
             router.push(nextPage)
             return true;
         }
@@ -41,16 +37,14 @@ export default function askForNotificationPermission() {
             const { status } = await Notifications.requestPermissionsAsync();
             if (status !== 'granted') {
                 alert('Permission to send notifications was denied!');
-                setStatus(status)
                 setDisabled(true)
             } else {
                 console.warn("Notification permissions granted.");
-                setStatus(status)
                 router.push(nextPage)
             }
         }
         getData()
-    }, [])
+    },[])
 
     if (loading) {
         return (
