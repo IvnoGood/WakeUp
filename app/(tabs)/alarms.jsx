@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { FAB, useTheme } from 'react-native-paper';
 
 export default function Alarms() {
@@ -53,7 +53,7 @@ export default function Alarms() {
             <PageHeader title={"Alarm"} showPlus={false} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                {alarms ? alarms.map((alarm) => (
+                {alarms && alarms.map((alarm) => (
                     <View key={alarm.id} style={styles.cardRow}>
                         <View style={{ flex: 1 }}>
                             <AlarmCard
@@ -67,8 +67,7 @@ export default function Alarms() {
                                 state={state}
                             />
                         </View>
-                    </View>
-                )) : <Text style={[styles.noAlarm, { color: theme.colors.onBackground }]}>No alarms</Text>}
+                    </View>))}
             </ScrollView>
             {state ? (
                 <FAB
