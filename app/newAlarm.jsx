@@ -7,7 +7,7 @@ import Slider from '@react-native-community/slider';
 import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Button, FAB, Text, useTheme, TextInput } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import uuid from 'react-native-uuid';
 
 import {
@@ -156,7 +156,7 @@ export default function AddNewAlarmScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <PageHeader title={savedAlarm == null ? "New Alarm" : "Edit alarm"} />
+                <PageHeader closeAction={onQuit} showClose={true} title={savedAlarm == null ? "New Alarm" : "Edit alarm"} />
 
                 <View style={styles.content}>
                     <View style={styles.form}>
@@ -223,11 +223,6 @@ export default function AddNewAlarmScreen() {
                     <Button mode='elevated' onPress={storeData} >Save</Button>
                 </View>
             </KeyboardAvoidingView>
-            <FAB
-                icon="close"
-                style={styles.fab}
-                onPress={onQuit}
-            />
         </SafeAreaView>
     );
 }
