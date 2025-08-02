@@ -5,10 +5,10 @@ import uuid from 'react-native-uuid';
 const navigation = useRouter();
 export async function DeleteAlarm(value, alarmId, alarm, setFavorites, favorites, alarms, setAlarms) {
     try {
-        const RawSavedDevices = JSON.parse(await AsyncStorage.getItem('alarms'))
-        const newArray = RawSavedDevices.filter(alarm => alarm.id !== alarmId)
+        const newArray = alarms.filter(alarm => alarm.id !== alarmId)
         await AsyncStorage.setItem('alarms', JSON.stringify(newArray));
         if (setAlarms) setAlarms(newArray)
+
         const newFavArray = favorites.filter(fav => alarm.id !== fav.id);
         await AsyncStorage.setItem('favs', JSON.stringify(newFavArray))
 
@@ -26,7 +26,7 @@ export async function manageAlarmFavorite(value, alarmId, alarm, setFavorites, f
         })[0]; */
         const fav = JSON.stringify(favorites)
         const strAlarm = JSON.stringify(alarm)
-        var isFav = fav.indexOf(strAlarm)
+        let isFav = fav.indexOf(strAlarm)
 
         if (isFav != -1) {
             const newArray = favorites.filter(fav => alarm.id !== fav.id);
@@ -61,7 +61,7 @@ export async function duplicateAlarm(value, alarmId, alarm, setFavorites, favori
             }
         }
 
-        var newAlarm = { ...alarm }
+        let newAlarm = { ...alarm }
         newAlarm.title = "Duplicated - " + alarm.title
         newAlarm.id = uuid.v4()
         const newAlarms = [...alarms, newAlarm]
