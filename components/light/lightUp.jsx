@@ -4,13 +4,15 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function blink(devices, alarm) {
+export async function blink(devices, alarm, isTesting) {
     try {
         const maxpower = Math.floor(alarm.brightness)
         const precision = 1
         const rawAlarmState = await AsyncStorage.getItem(alarm.id)
-        const alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : null
-        if (alarmState === null) {
+        let alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : null
+        if (alarmState === null && isTesting) {
+            alarmState = true;
+        } else if (alarmState === null) {
             console.error("Error while fetching data")
             return
         }
@@ -25,7 +27,7 @@ export async function blink(devices, alarm) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ "bri": 0, transition: 4, seg: [{ "col": [devices.color] }] }),
+            body: JSON.stringify({ "bri": 0, "on": true, transition: 4, seg: [{ "col": [devices.color] }] }),
         }).then(response => response.status)
             // .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
@@ -37,7 +39,7 @@ export async function blink(devices, alarm) {
         await sleep(1000);
         if (alarmState) {
             while (multiplier - 1 < alarm.sunriseTime) { //bright < maxpower && stop === true
-                if (JSON.parse(await AsyncStorage.getItem(alarm.id))) {
+                if (alarmState) {
                     bright = Math.floor(currentStep * multiplier)
                     fetch(`http://${devices.ip}/json/state`, {
                         method: 'POST',
@@ -49,7 +51,7 @@ export async function blink(devices, alarm) {
                         // .then(data => console.log(data))
                         .catch(error => console.error('Error:', error));
                     multiplier += 1
-                    await sleep(60000 / precision);
+                    await sleep(1000)
                 }
             }
         } else {

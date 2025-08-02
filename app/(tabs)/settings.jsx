@@ -45,9 +45,9 @@ export default function SettingsScreen() {
 
     const testAlarm = {
         id: "test-alarm-id",
-        brightness: 0.7,
+        brightness: 125,
         startTime: getTestAlarmTime(),
-        sunriseTime: "1",
+        sunriseTime: "15",
         title: "Test Alarm"
     };
 
@@ -99,12 +99,14 @@ export default function SettingsScreen() {
                             <List.Item
                                 title="Test Light On/Off"
                                 left={() => <List.Icon icon="lightbulb-on-outline" />}
-                                onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t", seg: [{ "col": [devices.color] }] }) })}
+                                onPress={() => fetch(`http://${devices.ip}/json/state`, {
+                                    method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ "on": "t", "bri": 125, seg: [{ "col": [devices.color] }] })
+                                })}
                             />
                             <List.Item
                                 title="Test Sunrise Sequence"
                                 left={() => <List.Icon icon="alarm-check" />}
-                                onPress={() => blink(devices, testAlarm)}
+                                onPress={() => blink(devices, testAlarm, true)}
                             />
                         </List.Section>
                     ) : (<></>)}
