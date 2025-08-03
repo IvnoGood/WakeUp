@@ -26,9 +26,9 @@ export async function setupAllTasksAndPermissions() {
                 }
             }
         });
-        console.log("Task 'ALARM_WAKE_UP_TASK' defined.");
+        //console.log("Task 'ALARM_WAKE_UP_TASK' defined.");
     } else {
-        console.log("Task 'ALARM_WAKE_UP_TASK' was already defined.");
+        //console.log("Task 'ALARM_WAKE_UP_TASK' was already defined.");
     }
 
     // 2. Define Notification Categories
