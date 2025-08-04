@@ -4,7 +4,7 @@ import LightStateProvider from '@/components/provider/LightStateProvider';
 import ThemeProvider, { useAppTheme } from '@/components/provider/ThemeProvider';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from 'expo-notifications';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native';
@@ -12,7 +12,7 @@ import { PaperProvider } from 'react-native-paper';
 
 function Layout() {
   const { theme, setThemeName } = useAppTheme();
-
+  const router = useRouter()
   useEffect(() => {
 
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
@@ -33,19 +33,20 @@ function Layout() {
     });
 
     // --- Listener #2
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
-      const actionIdentifier = response.actionIdentifier;
-      const alarmId = response.notification.request.content.data.id;
+    const subscription = Notifications.addNotificationResponseReceivedListener(async response => {
+      try {
+        const actionIdentifier = response.actionIdentifier;
+        const { alarm, device } = response.notification.request.content.data;
 
-      if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-        console.log(`User opened the app by tapping the main notification for alarm: ${alarmId}`);
-        // Navigate to the active alarm screen
-      } else if (actionIdentifier === 'snooze') {
-        console.log(`User pressed "Snooze" for alarm: ${alarmId}`);
-        // Your logic to snooze the alarm (e.g., schedule a new notification for 9 minutes later)
-      } else if (actionIdentifier === 'stop') {
-        console.log(`User pressed "Stop" for alarm: ${alarmId}`);
-        // Your logic to stop the alarm cycle
+        if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+          console.log(`User opened the app by tapping the main notification for alarm: ${alarm.id}`);
+          router.push('/')
+        } else if (actionIdentifier === 'stop') {
+          console.log(`User pressed "Stop" for alarm: ${alarm.id}`);
+          await AsyncStorage.removeItem(alarm.id)
+        }
+      } catch (e) {
+        console.error(e)
       }
     });
 
