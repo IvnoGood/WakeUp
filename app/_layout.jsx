@@ -26,7 +26,7 @@ function Layout() {
       if (alarm && device) {
         console.log(`FOREGROUND: Manually starting light sequence for alarm "${alarm.title}"`);
         // Manually start your light sequence function
-        blink(device, alarm)
+        blink(device, alarm, false)
       } else {
         console.warn("FOREGROUND: Notification received, but no alarm/device data found in payload.");
       }

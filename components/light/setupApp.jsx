@@ -1,7 +1,7 @@
 // utils/setupApp.js
+import { blink } from '@/components/light/lightUp';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-//import { startLightUpSequence } from './lightControl'; // Your lamp function
 
 const ALARM_WAKE_UP_TASK = 'ALARM_WAKE_UP_TASK';
 
@@ -20,7 +20,7 @@ export async function setupAllTasksAndPermissions() {
                 if (alarmData) {
                     const { alarm, device } = alarmData;
                     console.log(`BG TASK: Received alarm "${alarm.title}"`);
-                    //startLightUpSequence({ device, alarm });
+                    blink(device, alarm, false)
                 } else {
                     console.error("BG TASK: Could not find alarm data in payload.");
                 }
@@ -33,7 +33,6 @@ export async function setupAllTasksAndPermissions() {
 
     // 2. Define Notification Categories
     await Notifications.setNotificationCategoryAsync('alarm', [
-        { identifier: 'snooze', buttonTitle: 'Snooze (9 min)' },
         { identifier: 'stop', buttonTitle: 'Stop', options: { isDestructive: true } },
     ]);
 

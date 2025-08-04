@@ -92,15 +92,13 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
 
     const toggleSwitch = async () => {
         if (isEnabled) {
-            setIsEnabled(false)
             try {
-                if (new Date(alarm.rawStartTime).getTime() > new Date().getTime()
-                    && new Date(alarm.rawEndTime).getTime() < new Date().getTime()) {
-                    await Notifications.cancelScheduledNotificationAsync(alarm.id);
-                    console.log(`Notification with id ${alarm.id} successfully canceled`)
-                } else {
-                    await AsyncStorage.setItem(alarm.id, JSON.stringify(false))
-                }
+                setIsEnabled(false)
+                console.log("stopped currently running alarm")
+                await AsyncStorage.removeItem(alarm.id)
+                await Notifications.cancelScheduledNotificationAsync(alarm.id);
+                console.log(`Notification with id ${alarm.id} successfully canceled`);
+                console.log(await AsyncStorage.getAllKeys())
             } catch (e) {
                 console.error("There was an error cancelling the notification", e)
             }
@@ -109,6 +107,9 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
                 setIsEnabled(true)
                 scheduleAlarmNotification(alarm, device);
                 await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
+                const test = await AsyncStorage.getItem(alarm.id) || "undefined"
+                console.log("test :", test)
+                console.log(await AsyncStorage.getAllKeys())
             } catch (e) {
                 console.error("Error while setting alarm in Alarm:121", e)
             }
@@ -184,7 +185,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flex: 1,
         padding: 20,
-
     },
     cardTopRow: {
         flexDirection: 'row',

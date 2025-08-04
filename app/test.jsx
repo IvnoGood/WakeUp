@@ -1,40 +1,43 @@
 // In some screen component like AddNewAlarmScreen.js
 import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
+import AlarmCard from '@/components/ui/Alarm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Button, TextInput } from 'react-native-paper';
 
-const alarm = {
-    "brightness": 155.390625,
-    "endTime": "00:44",
-    "id": "3a4b9c8e-485d-4e06-95d1-c515dfbef9b8",
-    "initialIsActive": false,
-    "rawEndTime": "2025-07-10T23:44:18.411Z",
-    "rawStartTime": "2025-07-10T23:14:18.411Z",
-    "startTime": "22:13",
-    "subtitle": "Next light up Saturday",
-    "sunriseTime": "30",
-    "title": "School Morning"
-}
+
 const device = {
-    "ip": "wakeup.free.beeceptor.com",
+    "ip": "192.168.1.70:3000",
     "deviceName": "My lamp",
     "color": [255, 255, 255]
 }
 
 export default function AddNewAlarmScreen() {
     const { theme, setThemeName } = useAppTheme();
-    const { state, setState } = useLightState();
+    const [isEnabled, setIsEnabled] = useState(true);
     const [input, setInput] = useState("")
-    console.warn(state)
+    const date = new Date()
+    const [startT, setStartT] = useState(date.setSeconds(date.getSeconds() + 10))
     //console.warn("this is a test", theme)
     useEffect(() => {
         // Make sure we have permissions when the screen loads
         requestNotificationPermissions();
     }, []);
+
+    const alarm = {
+        "brightness": 125,
+        "endTime": "17:17",
+        "id": "b0e24b14-eeb5-4d5d-bf80-3bd26274f06a",
+        "initialIsActive": false,
+        "rawEndTime": "2025-08-04T16:17:00.000Z",
+        "rawStartTime": "2025-08-04T15:47:00.000Z",
+        "startTime": "16:47",
+        "subtitle": "Next light up Saturday",
+        "sunriseTime": "30",
+        "title": "School Morning"
+    }
 
     const handleTestNotification = async () => {
         scheduleAlarmNotification(alarm, device);
@@ -62,8 +65,12 @@ export default function AddNewAlarmScreen() {
             <Button onPress={handleTestNotification} >Send Test Notification in 5s</Button>
             <TextInput value={input} onChangeText={setInput} />
             <Button onPress={handleThemeChange} >Change theme</Button>
-
-            <Text>{JSON.stringify(theme)}</Text>
+            <AlarmCard
+                alarm={alarm}
+                device={device}
+                progress={0}
+                state={true}
+            />
         </ScrollView>
     );
 }
