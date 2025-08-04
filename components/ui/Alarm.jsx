@@ -94,11 +94,8 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
         if (isEnabled) {
             try {
                 setIsEnabled(false)
-                console.log("stopped currently running alarm")
                 await AsyncStorage.removeItem(alarm.id)
                 await Notifications.cancelScheduledNotificationAsync(alarm.id);
-                console.log(`Notification with id ${alarm.id} successfully canceled`);
-                console.log(await AsyncStorage.getAllKeys())
             } catch (e) {
                 console.error("There was an error cancelling the notification", e)
             }
@@ -107,9 +104,6 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
                 setIsEnabled(true)
                 scheduleAlarmNotification(alarm, device);
                 await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
-                const test = await AsyncStorage.getItem(alarm.id) || "undefined"
-                console.log("test :", test)
-                console.log(await AsyncStorage.getAllKeys())
             } catch (e) {
                 console.error("Error while setting alarm in Alarm:121", e)
             }
