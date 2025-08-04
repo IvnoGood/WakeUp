@@ -3,27 +3,25 @@ import AlarmCard from '@/components/ui/Alarm';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from "react-native";
-import { FAB, useTheme } from 'react-native-paper';
+import { ActivityIndicator, FAB, useTheme } from 'react-native-paper';
 
 export default function Alarms() {
     const [alarms, setAlarms] = useState()
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
+    const [loading, setLoading] = useState(true)
     const theme = useTheme()
     const router = useRouter()
     const { state } = useLightState();
 
-    const [fontsLoaded] = useFonts({
-        ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
-    });
 
     const getAlarms = useCallback(() => {
         async function fetchData() {
             try {
+                setLoading(true)
                 const rawSavedAlarms = await AsyncStorage.getItem('alarms');
                 const savedAlarms = rawSavedAlarms ? JSON.parse(rawSavedAlarms) : null;
                 setAlarms(savedAlarms);
@@ -34,6 +32,7 @@ export default function Alarms() {
                 const rawDevices = await AsyncStorage.getItem('devices');
                 const savedDevices = rawDevices ? JSON.parse(rawDevices) : null;
                 setDevices(savedDevices)
+                setLoading(false)
 
             } catch (e) {
                 console.error("Failed to fetch alarms", e);
@@ -44,8 +43,12 @@ export default function Alarms() {
     }, []);
     useFocusEffect(getAlarms)
 
-    if (!fontsLoaded) {
-        return null
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.center, { backgroundColor: theme.colors.background }]}>
+                <ActivityIndicator animating={true} size="large" />
+            </View>
+        )
     }
 
     return (
@@ -86,6 +89,10 @@ export default function Alarms() {
 }
 
 const styles = StyleSheet.create({
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     container: {
         //backgroundColor: Colors.background,
         flex: 1,
