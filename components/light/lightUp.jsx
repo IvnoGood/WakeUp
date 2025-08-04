@@ -79,7 +79,8 @@ export async function blink(devices, alarm, isTesting) {
         } else {
             console.warn("Maybe error but alarm lighUp stopped at lunch")
         }
-        console.warn("finished succesfuly")
+        console.warn("finished succesfuly");
+        await AsyncStorage.setItem(alarm.id, JSON.stringify(false))
     } catch (e) {
         console.error("error happened", e)
     }

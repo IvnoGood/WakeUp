@@ -115,6 +115,8 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             const [title, icon] = menuAlarmFavorite(alarm, favorites)
             setAlarmFavTitle(title)
             setAlarmFavIcon(icon)
+            const rawSwitchState = await AsyncStorage.getItem(alarm.id)
+            setIsEnabled(rawSwitchState ? JSON.parse(rawSwitchState) : false)
         }
         fetchData();
     }, [favorites]);
