@@ -1,5 +1,6 @@
 import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/components/alarm/handleAlarmMenuMD3';
 import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
+import { scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
 import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,8 +9,8 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card, Divider, Menu, ProgressBar, Switch, useTheme } from 'react-native-paper';
 
-export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state }) {
-    const [isEnabled, setIsEnabled] = useState(alarm.initialIsActive);
+export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state, isActivated }) {
+    const [isEnabled, setIsEnabled] = useState(isActivated);
     const [alarmFavTitle, setAlarmFavTitle] = useState("")
     const [alarmFavIcon, setAlarmFavIcon] = useState("")
     const theme = useTheme()
@@ -18,6 +19,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
+    console.log(alarm.title, isActivated)
     function getAlarmStatus(startTimeStr, endTimeStr) {
         // --- Step 1: Create Date objects for today ---
 
@@ -95,14 +97,24 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             try {
                 setIsEnabled(false)
                 await AsyncStorage.removeItem(alarm.id)
-                await Notifications.cancelScheduledNotificationAsync(alarm.id);
+
+                if (device.provider === 'Arduino') {
+                    unScheduleAlarmOnArduino(device, alarm)
+                } else {
+                    await Notifications.cancelScheduledNotificationAsync(alarm.id);
+                }
+
             } catch (e) {
                 console.error("There was an error cancelling the notification", e)
             }
         } else {
             try {
                 setIsEnabled(true)
-                scheduleAlarmNotification(alarm, device);
+                if (device.provider === 'Arduino') {
+                    scheduleAlarmOnArduino(device, alarm)
+                } else {
+                    scheduleAlarmNotification(alarm, device);
+                }
                 await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
             } catch (e) {
                 console.error("Error while setting alarm in Alarm:121", e)

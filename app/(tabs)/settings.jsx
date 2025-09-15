@@ -5,11 +5,12 @@ import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
+import SelectInput from '@/components/ui/SelectInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Button, Card, Divider, List, RadioButton, Text, useTheme } from "react-native-paper";
+import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, List, useTheme } from "react-native-paper";
 
 const ALL_THEMES = [
     { name: "Default Orange", key: "Classic", color: "#ffb86e" },
@@ -174,40 +175,8 @@ export default function SettingsScreen() {
                     </List.Section>
                 </ScrollView>
             </SafeAreaView>
+            <SelectInput visibility={isThemeModalVisible} changeVisibility={setIsThemeModalVisible} content={ALL_THEMES} title={'Choose your theme'} onSubmit={onThemeSelect} defaultValue={themeFromStorage} />
 
-            <Modal
-                transparent={true}
-                visible={isThemeModalVisible}
-                onRequestClose={() => setIsThemeModalVisible(false)}
-                animationType="fade"
-            >
-                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setIsThemeModalVisible(false)}>
-                    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} onStartShouldSetResponder={() => true}>
-                        <Card.Title title="Choose your theme" titleVariant="titleLarge" />
-                        <Card.Content>
-                            <ScrollView>
-                                {ALL_THEMES.map((radioTheme, index) => (
-                                    <View key={radioTheme.key}>
-                                        {index > 0 && <Divider />}
-                                        <TouchableOpacity style={styles.radioRow} onPress={() => onThemeSelect(radioTheme.key)}>
-                                            <RadioButton.Android
-                                                value={radioTheme.key}
-                                                status={themeFromStorage === radioTheme.key ? 'checked' : 'unchecked'}
-                                                onPress={() => onThemeSelect(radioTheme.key)}
-                                            />
-                                            <Text variant="bodyLarge" style={styles.radioLabel}>{radioTheme.name}</Text>
-                                            <View style={[styles.colorSwatch, { backgroundColor: radioTheme.color }]} />
-                                        </TouchableOpacity>
-                                    </View>
-                                ))}
-                            </ScrollView>
-                        </Card.Content>
-                        <Card.Actions>
-                            <Button onPress={() => setIsThemeModalVisible(false)}>Done</Button>
-                        </Card.Actions>
-                    </Card>
-                </TouchableOpacity>
-            </Modal>
             {state ? (<></>) : (<View>
                 <DeviceSnackbar state={state} />
             </View >)}
@@ -224,33 +193,5 @@ const styles = StyleSheet.create({
     center: {
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    card: {
-        width: '90%',
-        maxWidth: 350,
-        maxHeight: '70%',
-    },
-    radioRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-    },
-    radioLabel: {
-        flex: 1,
-        marginLeft: 8,
-    },
-    colorSwatch: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        marginLeft: 16,
-        borderWidth: 1,
-        borderColor: '#888',
     },
 });

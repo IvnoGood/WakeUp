@@ -1,3 +1,4 @@
+import { fetchAlarmsFromArduino, listScheduleAlarmOnArduino, sendAlarmsToArduino } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
@@ -8,8 +9,11 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, FAB, useTheme } from 'react-native-paper';
 
+const alarm = [{ "brightness": 125, "endTime": "10:00", "id": "b75d5be2-ea56-44ba-a3e8-d8f4f9392dfa", "initialIsActive": false, "rawEndTime": "2025-09-06T08:00:00.000Z", "rawStartTime": "2025-09-06T07:30:00.000Z", "startTime": "09:30", "subtitle": "Next light up Saturday", "sunriseTime": "30", "title": "School Morning" }]
+
 export default function Alarms() {
     const [alarms, setAlarms] = useState()
+    const [scheduledAlarms, setScheduledAlarms] = useState([])
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
     const [loading, setLoading] = useState(true)
@@ -24,7 +28,6 @@ export default function Alarms() {
                 setLoading(true)
                 const rawSavedAlarms = await AsyncStorage.getItem('alarms');
                 const savedAlarms = rawSavedAlarms ? JSON.parse(rawSavedAlarms) : null;
-                setAlarms(savedAlarms);
 
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : [];
@@ -32,6 +35,15 @@ export default function Alarms() {
                 const rawDevices = await AsyncStorage.getItem('devices');
                 const savedDevices = rawDevices ? JSON.parse(rawDevices) : null;
                 setDevices(savedDevices)
+
+                if (state && savedDevices.provider === 'Arduino') {
+                    await sendAlarmsToArduino(savedDevices, savedAlarms)
+                    setAlarms(await fetchAlarmsFromArduino(savedDevices) || savedAlarms)
+                    setScheduledAlarms(await listScheduleAlarmOnArduino(savedDevices))
+                } else {
+                    setAlarms(savedAlarms);
+                }
+
                 setLoading(false)
 
             } catch (e) {
@@ -51,6 +63,8 @@ export default function Alarms() {
         )
     }
 
+    //console.warn(scheduledAlarms ? scheduledAlarms.filter((scheduled) => console.log(scheduled)) : null)
+
     return (
         <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
             <PageHeader title={"Alarm"} showPlus={false} />
@@ -63,11 +77,12 @@ export default function Alarms() {
                                 alarm={alarm}
                                 device={devices}
                                 setAlarms={setAlarms}
-                                favorites={favorites}
+                                fdavorites={favorites}
                                 setFavorites={setFavorites}
                                 alarms={alarms}
                                 progress={0}
                                 state={state}
+                                isActivated={scheduledAlarms ? scheduledAlarms.filter((scheduled) => alarm.id === scheduled.id).length > 0 : false}
                             />
                         </View>
                     </View>))}
@@ -94,7 +109,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     container: {
-        //backgroundColor: Colors.background,
         flex: 1,
         paddingHorizontal: 20,
         paddingTop: 60,

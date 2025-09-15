@@ -1,4 +1,5 @@
 import PageHeader from '@/components/ui/pageHeader';
+import SelectInput from '@/components/ui/SelectInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -9,13 +10,19 @@ import {
     StyleSheet,
     View
 } from 'react-native';
-import { Button, FAB, TextInput, useTheme } from 'react-native-paper';
+import { Button, FAB, List, TextInput, useTheme } from 'react-native-paper';
+
+const ALL_DEVICES = [
+    { name: "Arduino", key: "Arduino" },
+    { name: "WLED", key: "WLED" },
+];
 
 export default function AddNewDeviceScreen() {
     const [ipAddress, setIpAddress] = useState('192.168.1.81');
     const [deviceName, setDeviceName] = useState('My lamp');
     const [color, setColor] = useState('#fff');
-    const [devices, setDevices] = useState()
+    const [deviceTypeSelectDisplay, setDeviceTypeSelectDisplay] = useState(false);
+    const [deviceType, setDeviceType] = useState('Arduino')
     const [pageState, setPagestate] = useState(true)
 
     const router = useRouter();
@@ -60,7 +67,8 @@ export default function AddNewDeviceScreen() {
             const DeviceData = {
                 ip: ipAddress,
                 deviceName: deviceName,
-                color: rgbColor
+                color: rgbColor,
+                provider: deviceType
             }
             await AsyncStorage.setItem('devices', JSON.stringify(DeviceData));
             router.back()
@@ -69,6 +77,11 @@ export default function AddNewDeviceScreen() {
             alert("Failed to save device. Please try again.", e);
         }
 
+    };
+
+    const onDeviceSelect = async (key) => {
+        setDeviceType(key)
+        setDeviceTypeSelectDisplay(false);
     };
 
     const getDevice = useCallback(() => {
@@ -80,6 +93,7 @@ export default function AddNewDeviceScreen() {
                     setIpAddress(savedDevice.ip)
                     setDeviceName(savedDevice.deviceName)
                     setColor(rgbToHex(savedDevice.color))
+                    setDeviceType(savedDevice.provider)
                     setPagestate(false)
                 }
             } catch (e) {
@@ -119,11 +133,28 @@ export default function AddNewDeviceScreen() {
                         >
                         </TextInput>
 
+                        <List.Section>
+                            <List.Subheader>Choose your alarm device provider</List.Subheader>
+                            <List.Item
+                                title={"Current configured device: " + deviceType}
+                                onPress={() => setDeviceTypeSelectDisplay(true)}
+                                left={() => <List.Icon icon='desk-lamp' />}
+                            />
+                        </List.Section>
+
                         <Button mode='elevated' onPress={storeData}>
                             Save
                         </Button>
                     </View>
                 </View>
+                <SelectInput
+                    visibility={deviceTypeSelectDisplay}
+                    changeVisibility={setDeviceTypeSelectDisplay}
+                    content={ALL_DEVICES}
+                    title={'Choose your platform'}
+                    onSubmit={onDeviceSelect}
+                    defaultValue={deviceType}
+                />
             </KeyboardAvoidingView>
             <FAB
                 icon="close"

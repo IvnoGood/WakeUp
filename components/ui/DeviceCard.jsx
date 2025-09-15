@@ -13,7 +13,7 @@ export default function DeviceCard({ name, status, progress, onLongPress }) {
             setDetails({
                 color: 'green',
                 connection: 'Online',
-                speed: status.response.wifi.signal,
+                speed: status.response.signal,
                 icon: 'wifi'
             })
         } else {
@@ -39,7 +39,7 @@ export default function DeviceCard({ name, status, progress, onLongPress }) {
 
                     <View style={{ flexDirection: 'row', gap: 0, alignItems: 'center' }}>
                         <View style={{ backgroundColor: details.color, overflow: 'hidden', width: 16, height: 16, borderRadius: 16 / 2, marginRight: 7 }} />
-                        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{details.connection} {details.speed == null ? '' : `- ${details.speed}`} </Text>
+                        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>{details.connection} {details.speed == null ? '' : ` ${details.speed}`} </Text>
                         <Icon source={details.icon} size={15} />
                     </View>
 

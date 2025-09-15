@@ -58,7 +58,7 @@ export default function HomeScreen() {
                     setShowNewDevice(true)
                 }
                 setLoading(false)
-                const response = await getLightStatus(SavedDevices.ip)
+                const response = await getLightStatus(SavedDevices.ip, SavedDevices.provider)
                 if (response.isConnected) {
                     setOnline(response)
                     setState(true)
