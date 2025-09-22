@@ -19,7 +19,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
-    console.log(alarm.title, isActivated)
+    //console.log(alarm.title, isActivated)
     function getAlarmStatus(startTimeStr, endTimeStr) {
         // --- Step 1: Create Date objects for today ---
 

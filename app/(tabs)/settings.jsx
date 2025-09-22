@@ -165,7 +165,7 @@ export default function SettingsScreen() {
                         <List.Item
                             title="Log Custom Data"
                             left={() => <List.Icon icon="console-line" />}
-                            onPress={async () => { console.log('Favorites:', await AsyncStorage.getItem('devices')) }}
+                            onPress={async () => { console.log('Favorites:', await AsyncStorage.getItem('favs')) }}
                         />
                         <List.Item
                             title="Open Test Page"

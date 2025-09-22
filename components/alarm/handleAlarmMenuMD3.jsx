@@ -28,11 +28,11 @@ export async function manageAlarmFavorite(value, alarmId, alarm, setFavorites, f
         const strAlarm = JSON.stringify(alarm)
         let isFav = fav.indexOf(strAlarm)
 
-        if (isFav != -1) {
+        if (isFav != -1) { // delete fav
             const newArray = favorites.filter(fav => alarm.id !== fav.id);
             await AsyncStorage.setItem('favs', JSON.stringify(newArray))
             if (setFavorites) setFavorites(newArray)
-        } else {
+        } else { // delete fav
             const rawFavs = await AsyncStorage.getItem('favs')
             const favs = rawFavs ? JSON.parse(rawFavs) : []
 

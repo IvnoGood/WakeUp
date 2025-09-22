@@ -77,7 +77,7 @@ export default function Alarms() {
                                 alarm={alarm}
                                 device={devices}
                                 setAlarms={setAlarms}
-                                fdavorites={favorites}
+                                favorites={favorites}
                                 setFavorites={setFavorites}
                                 alarms={alarms}
                                 progress={0}
