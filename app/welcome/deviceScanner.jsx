@@ -18,6 +18,8 @@ export default function SearchForDevices() {
             async function fetchIP(i) {
                 const currentTriedIP = ipAddressScheme + i
                 let response
+
+                //--- WLED version --- //
                 await fetch(`http://${currentTriedIP}/json/state`, {
                     method: 'POST',
                     headers: {
@@ -30,6 +32,18 @@ export default function SearchForDevices() {
                 console.log("Tried with this IP", currentTriedIP, "and got this response", response)
                 if (JSON.stringify(response) === JSON.stringify({ "success": true })) {
                     setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                } else {
+                    // --- ARDUINO version --- //
+                    // -- Did not test TODO: check if it works
+
+                    await fetch(`http://${currentTriedIP}/state`).then(response => response.json())
+                        .then(data => { response = data })
+                        .catch(error => { })
+                    console.log("Tried with this IP", currentTriedIP, "and got this response", response)
+                    if (response.ip === currentTriedIP) {
+                        setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                    }
+
                 }
             }
             async function cycleIP() {
@@ -42,7 +56,7 @@ export default function SearchForDevices() {
                     setIsSearching(false)
                 }
             }
-            cycleIP()
+            // cycleIP()
         }, []))
 
     return (

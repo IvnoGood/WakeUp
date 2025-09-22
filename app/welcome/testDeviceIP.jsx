@@ -8,8 +8,7 @@ export default function SearchForDevices() {
     const [finished, setFinished] = useState(false)
     const theme = useTheme()
     const router = useRouter()
-    const { ipAddress } = useLocalSearchParams();
-
+    const { ipAddress, provider } = useLocalSearchParams();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useFocusEffect(useCallback(() => {
         async function doBlink() {
@@ -47,7 +46,7 @@ export default function SearchForDevices() {
             setFinished(true)
         }
         doBlink()
-    },[]))
+    }, []))
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -76,7 +75,7 @@ export default function SearchForDevices() {
                 </View>)
                     : <ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} />}
             <Button disabled={!finished} mode="contained" onPress={() => {
-                router.push({ pathname: '/welcome/newDevice', params: { ipAddress: ipAddress } })
+                router.push({ pathname: '/welcome/newDevice', params: { ipAddress: ipAddress, provider: provider } })
             }} style={styles.boutons}>Next</Button>
         </SafeAreaView>
     )

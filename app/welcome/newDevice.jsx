@@ -13,7 +13,7 @@ export default function SearchForDevices() {
 
     const theme = useTheme()
     const router = useRouter()
-    const { ipAddress } = useLocalSearchParams();
+    const { ipAddress, provider } = useLocalSearchParams();
 
     function hexToRGB(hex) {
         let alpha = false;
@@ -47,7 +47,8 @@ export default function SearchForDevices() {
             const DeviceData = {
                 ip: ipAddress,
                 deviceName: deviceName,
-                color: rgbColor
+                color: rgbColor,
+                provider: provider
             }
             await AsyncStorage.setItem('devices', JSON.stringify(DeviceData));
             await AsyncStorage.setItem('isNew', JSON.stringify(false));
