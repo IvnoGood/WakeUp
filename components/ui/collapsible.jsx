@@ -1,8 +1,7 @@
 // components/Collapsible.jsx
-import { Colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { LayoutAnimation, Platform, StyleSheet, TouchableOpacity, UIManager, View } from 'react-native';
 import { Text } from "react-native-paper";
 
@@ -55,7 +54,6 @@ const styles = StyleSheet.create({
         padding: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        borderColor: Colors.accent,
         borderBottomWidth: 1
     },
     summaryText: {

@@ -2,7 +2,6 @@ import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/c
 import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
 import { scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useState } from 'react';
@@ -203,13 +202,11 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'SystemBold',
         fontSize: 26,
-        //color: Colors.text,
         fontWeight: 'bold',
         maxWidth: '250'
     },
     cardSubtitle: {
         fontSize: 16,
-        //color: Colors.text,
         marginTop: 4,
         lineHeight: 22,
     },
@@ -221,7 +218,6 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontSize: 14,
-        color: Colors.text,
     },
     dot: {
         width: 9,
@@ -233,7 +229,6 @@ const styles = StyleSheet.create({
     },
     inactiveDot: {
         borderWidth: 1.5,
-        borderColor: Colors.text,
     },
     menuIcon: {
         marginLeft: 8,
