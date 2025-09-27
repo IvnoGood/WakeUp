@@ -7,7 +7,6 @@ import DeviceCard from "@/components/ui/DeviceCard";
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import EmptyFetch from '@/components/ui/EmptyFetch';
 import PageHeader from "@/components/ui/pageHeader";
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -149,7 +148,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     noDevice: {
-        color: Colors.text,
         fontSize: 20,
         textTransform: 'capitalize',
         textAlign: 'center',

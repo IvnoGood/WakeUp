@@ -21,6 +21,14 @@ const ALL_THEMES = [
     { name: "Neutral Gray", key: "NeutralGray", color: "#DDDDDD" },
 ];
 
+const ALL_PARAMS = [
+    { name: "Device", key: "devices" },
+    { name: "Alarms", key: "alarms" },
+    { name: "Favorites Alarms", key: "favs" },
+    { name: "New User param", key: "isNew" },
+    { name: "Current Theme", key: "AppTheme" },
+];
+
 export default function SettingsScreen() {
     const theme = useTheme();
     const router = useRouter();
@@ -30,6 +38,7 @@ export default function SettingsScreen() {
     const [devices, setDevices] = useState(null);
     const [themeFromStorage, setThemeFromStorage] = useState('');
     const [isThemeModalVisible, setIsThemeModalVisible] = useState(false);
+    const [isCacheVisible, setIsCacheVisible] = useState(false);
     const [focusedIcons, setFocusedIcons] = useState({
         delAlarms: false,
         delFavorites: false,
@@ -73,6 +82,12 @@ export default function SettingsScreen() {
         await AsyncStorage.setItem("AppTheme", JSON.stringify(key));
         setIsThemeModalVisible(false);
     };
+
+    const onCacheSelect = async (key) => {
+        console.log('removed: ', key)
+        await AsyncStorage.removeItem(key)
+        setIsCacheVisible(false)
+    }
 
     const toggleIconFocus = (iconName) => {
         setFocusedIcons(prevState => ({
@@ -124,39 +139,9 @@ export default function SettingsScreen() {
                     <List.Section>
                         <List.Subheader>Cache Management</List.Subheader>
                         <List.Item
-                            title="Delete All Alarms"
-                            onPressIn={() => toggleIconFocus('delAlarms')}
-                            onPressOut={() => toggleIconFocus('delAlarms')}
-                            onPress={async () => await AsyncStorage.removeItem('alarms')}
-                            left={() => <List.Icon icon={focusedIcons.delAlarms ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete Device"
-                            onPressIn={() => toggleIconFocus('delDevice')}
-                            onPressOut={() => toggleIconFocus('delDevice')}
-                            onPress={async () => await AsyncStorage.removeItem('devices')}
-                            left={() => <List.Icon icon={focusedIcons.delDevice ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete All Favorite Alarms"
-                            onPressIn={() => toggleIconFocus('delFavorites')}
-                            onPressOut={() => toggleIconFocus('delFavorites')}
-                            onPress={async () => await AsyncStorage.removeItem('favs')}
-                            left={() => <List.Icon icon={focusedIcons.delFavorites ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete New User options"
-                            onPressIn={() => toggleIconFocus('delNewUser')}
-                            onPressOut={() => toggleIconFocus('delNewUser')}
-                            onPress={async () => await AsyncStorage.removeItem('isNew')}
-                            left={() => <List.Icon icon={focusedIcons.delNewUser ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete Current Theme"
-                            onPressIn={() => toggleIconFocus('delTheme')}
-                            onPressOut={() => toggleIconFocus('delTheme')}
-                            onPress={async () => await AsyncStorage.removeItem('AppTheme')}
-                            left={() => <List.Icon icon={focusedIcons.delTheme ? "delete-forever" : "delete-forever-outline"} />}
+                            title="Delete Cache"
+                            onPress={() => setIsCacheVisible(true)}
+                            left={() => <List.Icon icon="delete-forever" />}
                         />
                     </List.Section>
 
@@ -176,6 +161,8 @@ export default function SettingsScreen() {
                 </ScrollView>
             </SafeAreaView>
             <SelectInput visibility={isThemeModalVisible} changeVisibility={setIsThemeModalVisible} content={ALL_THEMES} title={'Choose your theme'} onSubmit={onThemeSelect} defaultValue={themeFromStorage} />
+
+            <SelectInput visibility={isCacheVisible} changeVisibility={setIsCacheVisible} content={ALL_PARAMS} title={'Delete a cache value'} onSubmit={onCacheSelect} />
 
             {state ? (<></>) : (<View>
                 <DeviceSnackbar state={state} />
