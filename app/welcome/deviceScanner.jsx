@@ -11,7 +11,7 @@ export default function SearchForDevices() {
     const router = useRouter();
     const pathname = usePathname();
     const ipAddressScheme = '192.168.1.'
-    const nextPage = '/welcome/newDevice'
+    const nextPage = '/welcome/deviceType'
 
     useFocusEffect(
         useCallback(() => {
@@ -36,11 +36,11 @@ export default function SearchForDevices() {
                     // --- ARDUINO version --- //
                     // -- Did not test TODO: check if it works
 
-                    await fetch(`http://${currentTriedIP}/state`).then(response => response.json())
+                    await fetch(`http://${currentTriedIP}/status`).then(response => response.json())
                         .then(data => { response = data })
                         .catch(error => { })
                     console.log("Tried with this IP", currentTriedIP, "and got this response", response)
-                    if (response.ip === currentTriedIP) {
+                    if (response.ip_address === currentTriedIP) {
                         setFoundDevices([...foundDevices, { ip: currentTriedIP }])
                     }
 
@@ -56,7 +56,7 @@ export default function SearchForDevices() {
                     setIsSearching(false)
                 }
             }
-            // cycleIP()
+            //cycleIP()
         }, []))
 
     return (
@@ -66,7 +66,7 @@ export default function SearchForDevices() {
                 <Text style={styles.title}>Scanning network searching for a WLED device</Text>
             </View>
             <ScrollView style={{ flex: 1, width: 300, overflow: 'hidden', paddingBottom: 20 }}>
-                {isSearching && foundDevices.length === 0 ? foundDevices.map((data) => (
+                {foundDevices.length !== 0 ? foundDevices.map((data) => (
                     <Card key={data.ip} style={{ width: '100%', marginVertical: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
                             <Icon source={"lan"} size={20} />

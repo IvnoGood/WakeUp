@@ -1,6 +1,6 @@
 // app/(tabs)/settings.jsx
 
-import { blink } from '@/components/light/lightUp';
+import { scheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
@@ -57,7 +57,7 @@ export default function SettingsScreen() {
         id: "test-alarm-id",
         brightness: 125,
         startTime: getTestAlarmTime(),
-        sunriseTime: "15",
+        sunriseTime: "1",
         title: "Test Alarm"
     };
 
@@ -122,7 +122,7 @@ export default function SettingsScreen() {
                             <List.Item
                                 title="Test Sunrise Sequence"
                                 left={() => <List.Icon icon="alarm-check" />}
-                                onPress={() => blink(devices, testAlarm, true)}
+                                onPress={() => devices.provider == 'Arduino' ? scheduleAlarmOnArduino(devices, testAlarm) : blink(devices, testAlarm, true)}
                             />
                         </List.Section>
                     ) : (<></>)}

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { useEffect, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { Button, HelperText, Icon, Text, TextInput, useTheme } from "react-native-paper";
 
 export default function SearchForDevices() {
@@ -9,7 +9,8 @@ export default function SearchForDevices() {
     const [color, setColor] = useState('#fff');
     const [colorError, setColorError] = useState(false)
     const [isBtnLoading, setIsBtnLoading] = useState(false)
-    const [btnTitle, setBtnTitle] = useState("Finish")
+    const [btnTitle, setBtnTitle] = useState("Finish");
+    const [behaviour, setBehaviour] = useState('height');
 
     const theme = useTheme()
     const router = useRouter()
@@ -70,35 +71,57 @@ export default function SearchForDevices() {
         }
 
     };
+
+
+    useEffect(() => {
+        const showListener = Keyboard.addListener('keyboardDidShow', () => {
+            setBehaviour('height');
+        });
+        const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setBehaviour(undefined);
+        });
+
+        return () => {
+            showListener.remove();
+            hideListener.remove();
+        };
+    }, []);
+
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <View style={{ alignItems: 'center' }}>
-                <Icon source={"cogs"} size={50} color={theme.colors.secondary} />
-                <Text style={styles.title}>Add final customization steps</Text>
-            </View>
-            <View style={{ width: '100%', gap: 30 }}>
-                <View>
-                    <Text style={styles.description}>Add a display name for your device eg: My Alarm</Text>
-                    <TextInput
-                        label="Name:"
-                        value={deviceName}
-                        onChangeText={setDeviceName}
-                    />
-                </View>
-                <View>
-                    <Text style={styles.description}>Enter a valid hex color for your lamp default color</Text>
-                    <TextInput
-                        label="Color:"
-                        value={color}
-                        onChangeText={setColor}
-                    />
-                    <HelperText type="error" visible={colorError}>
-                        Invalid HEX color
-                    </HelperText>
-                </View>
-            </View>
-            <Button mode="contained" style={styles.boutons} onPress={storeData} loading={isBtnLoading}>{btnTitle}</Button>
-        </SafeAreaView>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'android' ? behaviour : undefined}
+            style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                    <View style={{ alignItems: 'center' }}>
+                        <Icon source={"cogs"} size={50} color={theme.colors.secondary} />
+                        <Text style={styles.title}>Add final customization steps</Text>
+                    </View>
+                    <View style={{ width: '100%', gap: 30 }}>
+                        <View>
+                            <Text style={styles.description}>Add a display name for your device eg: My Alarm</Text>
+                            <TextInput
+                                label="Name:"
+                                value={deviceName}
+                                onChangeText={setDeviceName}
+                            />
+                        </View>
+                        <View>
+                            <Text style={styles.description}>Enter a valid hex color for your lamp default color</Text>
+                            <TextInput
+                                label="Color:"
+                                value={color}
+                                onChangeText={setColor}
+                            />
+                            <HelperText type="error" visible={colorError}>
+                                Invalid HEX color
+                            </HelperText>
+                        </View>
+                    </View>
+                    <Button mode="contained" style={styles.boutons} onPress={storeData} loading={isBtnLoading}>{btnTitle}</Button>
+                </SafeAreaView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 

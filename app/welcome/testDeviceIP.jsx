@@ -12,41 +12,58 @@ export default function SearchForDevices() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useFocusEffect(useCallback(() => {
         async function doBlink() {
-
-            for (let i = 0; i < 4; i++) {
+            console.log("test")
+            if (provider == 'Arduino') {
                 try {
                     let response
-                    await fetch(`http://${ipAddress}/json/state`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ "on": 't' })
-                    }).then(response => response.json())
+                    await fetch(`http://${ipAddress}/status`)
+                        .then(response => response.json())
                         .then(data => { response = data })
-                        .catch((e) => { console.error(e); setErrors(true) })
-                    if (errors || JSON.stringify(response) !== JSON.stringify({ "success": true })) {
+                        .catch(error => setErrors(true));
+                    if (response.ip_address === ipAddress) {
+                        setFinished(true)
+                    } else {
+                        setErrors(true)
+                    }
+                } catch (e) {
+                    setErrors(true)
+                }
+            } else {
+                for (let i = 0; i < 4; i++) {
+                    try {
+                        let response
+                        await fetch(`http://${ipAddress}/json/state`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ "on": 't' })
+                        }).then(response => response.json())
+                            .then(data => { response = data })
+                            .catch((e) => { console.error(e); setErrors(true) })
+                        if (errors || JSON.stringify(response) !== JSON.stringify({ "success": true })) {
+                            setErrors(true)
+                            break
+                        }
+                        await sleep(1500)
+                    } catch (e) {
+                        console.error(e)
                         setErrors(true)
                         break
                     }
-                    await sleep(1500)
-                } catch (e) {
-                    console.error(e)
-                    setErrors(true)
-                    break
                 }
+                fetch(`http://${ipAddress}/json/state`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "on": true })
+                }).catch((e) => console.error(e))
+                setFinished(true)
             }
-            fetch(`http://${ipAddress}/json/state`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ "on": true })
-            }).catch((e) => console.error(e))
-            setFinished(true)
         }
         doBlink()
-    }, []))
+    }, [finished]))
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -74,9 +91,12 @@ export default function SearchForDevices() {
                     <Text style={styles.description}>Finished successfully</Text>
                 </View>)
                     : <ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} />}
-            <Button disabled={!finished} mode="contained" onPress={() => {
-                router.push({ pathname: '/welcome/newDevice', params: { ipAddress: ipAddress, provider: provider } })
-            }} style={styles.boutons}>Next</Button>
+            <View style={{ flexDirection: 'column', height: 100 }}>
+                <Button disabled={!finished} mode="contained" onPress={() => {
+                    router.push({ pathname: '/welcome/newDevice', params: { ipAddress: ipAddress, provider: provider } })
+                }} style={styles.boutons}>Next</Button>
+                <Button style={[styles.boutons, { display: !finished || errors ? 'flex' : 'none' }]} icon={"reload"} onPress={() => { setFinished(false); setErrors(false) }}>Retry</Button>
+            </View>
         </SafeAreaView>
     )
 }
