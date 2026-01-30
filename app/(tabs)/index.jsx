@@ -84,7 +84,7 @@ export default function HomeScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container, Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background  }]}>
+            <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={'Devices'} />
                 {!deviceLoading ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
                     <DeviceCard

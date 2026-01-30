@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
+import { Platform } from 'react-native';
 
 export default function AskForNotificationPermission() {
     const [disabled, setDisabled] = useState(true)
@@ -44,7 +45,7 @@ export default function AskForNotificationPermission() {
             }
         }
         getData()
-    },[])
+    }, [])
 
     if (loading) {
         return (
@@ -54,7 +55,7 @@ export default function AskForNotificationPermission() {
         );
     }
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"message-badge-outline"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>We need your consent</Text>

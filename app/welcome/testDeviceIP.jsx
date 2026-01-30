@@ -1,8 +1,9 @@
 import sleep from '@/components/delay';
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, View } from "react-native";
 import { Button, Icon, ProgressBar, Text, useTheme } from "react-native-paper";
+
 export default function SearchForDevices() {
     const [errors, setErrors] = useState(false)
     const [finished, setFinished] = useState(false)
@@ -12,14 +13,15 @@ export default function SearchForDevices() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useFocusEffect(useCallback(() => {
         async function doBlink() {
-            console.log("test")
             if (provider == 'Arduino') {
                 try {
                     let response
+
                     await fetch(`http://${ipAddress}/status`)
                         .then(response => response.json())
                         .then(data => { response = data })
-                        .catch(error => setErrors(true));
+                        .catch(error => { setErrors(true); console.error(error) })
+                    console.log(response)
                     if (response.ip_address === ipAddress) {
                         setFinished(true)
                     } else {
@@ -27,6 +29,7 @@ export default function SearchForDevices() {
                     }
                 } catch (e) {
                     setErrors(true)
+                    console.error(e)
                 }
             } else {
                 for (let i = 0; i < 4; i++) {
@@ -66,7 +69,7 @@ export default function SearchForDevices() {
     }, [finished]))
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"alarm-check"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>WLED device check</Text>
@@ -89,10 +92,13 @@ export default function SearchForDevices() {
                         size={50}
                     />
                     <Text style={styles.description}>Finished successfully</Text>
-                </View>)
-                    : <ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} />}
-            <View style={{ flexDirection: 'column', height: 100 }}>
-                <Button disabled={!finished} mode="contained" onPress={() => {
+                </View>) : (
+                    <View>
+                        <ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} />
+                    </View>
+                )}
+            <View>
+                <Button disabled={Platform.OS === 'web' ? false : !finished} mode="contained" onPress={() => {
                     router.push({ pathname: '/welcome/newDevice', params: { ipAddress: ipAddress, provider: provider } })
                 }} style={styles.boutons}>Next</Button>
                 <Button style={[styles.boutons, { display: !finished || errors ? 'flex' : 'none' }]} icon={"reload"} onPress={() => { setFinished(false); setErrors(false) }}>Retry</Button>

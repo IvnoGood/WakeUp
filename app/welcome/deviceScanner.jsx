@@ -1,7 +1,7 @@
 import sleep from '@/components/delay';
 import { useFocusEffect, usePathname, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Card, Icon, IconButton, ProgressBar, Text, useTheme } from "react-native-paper";
 
 export default function SearchForDevices() {
@@ -16,7 +16,7 @@ export default function SearchForDevices() {
     useFocusEffect(
         useCallback(() => {
             async function fetchIP(i) {
-                const currentTriedIP = ipAddressScheme + i
+                const currentTriedIP = ipAddressScheme + i + ":3000"
                 let response
 
                 //--- WLED version --- //
@@ -38,16 +38,17 @@ export default function SearchForDevices() {
 
                     await fetch(`http://${currentTriedIP}/status`).then(response => response.json())
                         .then(data => { response = data })
-                        .catch(error => { })
+                        .catch(error => { return })
                     console.log("Tried with this IP", currentTriedIP, "and got this response", response)
-                    if (response.ip_address === currentTriedIP) {
-                        setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                    if (response) {
+                        if (response.ip_address === currentTriedIP) {
+                            setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                        }
                     }
-
                 }
             }
             async function cycleIP() {
-                for (let i = 0; i <= 255; i++) {
+                for (let i = 0; i <= 50; i++) {
                     fetchIP(i)
                     await sleep(250)
                 }
@@ -56,16 +57,16 @@ export default function SearchForDevices() {
                     setIsSearching(false)
                 }
             }
-            //cycleIP()
+            cycleIP()
         }, []))
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center', marginBottom: 30 }}>
                 <Icon source={"lan-pending"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>Scanning network searching for a WLED device</Text>
             </View>
-            <ScrollView style={{ flex: 1, width: 300, overflow: 'hidden', paddingBottom: 20 }}>
+            <ScrollView style={{ flex: 1, width: 300, overflow: 'hidden', paddingBottom: 20, paddingHorizontal: 10 }}>
                 {foundDevices.length !== 0 ? foundDevices.map((data) => (
                     <Card key={data.ip} style={{ width: '100%', marginVertical: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>

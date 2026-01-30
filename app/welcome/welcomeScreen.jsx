@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Linking, SafeAreaView, StyleSheet } from "react-native";
+import { Linking, Platform, SafeAreaView, StyleSheet } from "react-native";
 import { Button, Icon, Text, useTheme } from "react-native-paper";
 
 export default function WelcomeScreen() {
@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
     }, [])
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <Icon source={"desk-lamp"} size={50} color={theme.colors.secondary} />
             <Text style={styles.title}>Welcome to your sunrise alarm clock companion App</Text>
             <Text style={styles.description}>

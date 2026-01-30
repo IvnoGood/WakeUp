@@ -1,6 +1,6 @@
 // app/(tabs)/settings.jsx
 
-import { scheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
+import { scheduleAlarmOnArduino, toggleStripState } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
@@ -115,9 +115,11 @@ export default function SettingsScreen() {
                             <List.Item
                                 title="Test Light On/Off"
                                 left={() => <List.Icon icon="lightbulb-on-outline" />}
-                                onPress={() => fetch(`http://${devices.ip}/json/state`, {
-                                    method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ "on": "t", "bri": 125, seg: [{ "col": [devices.color] }] })
-                                })}
+                                onPress={() => {
+                                    devices.provider == 'Arduino' ? toggleStripState(devices) : fetch(`http://${devices.ip}/json/state`, {
+                                        method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ "on": "t", "bri": 125, seg: [{ "col": [devices.color] }] })
+                                    })
+                                }}
                             />
                             <List.Item
                                 title="Test Sunrise Sequence"

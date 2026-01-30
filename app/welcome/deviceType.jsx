@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
 import { Button, Icon, List, Text, useTheme } from "react-native-paper";
+import { Platform } from 'react-native';
 const ALL_DEVICES = [
     { name: "Arduino", key: "Arduino" },
     { name: "WLED", key: "WLED" },
@@ -45,7 +46,7 @@ export default function deviceType() {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"devices"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>Choose your device firmware type</Text>

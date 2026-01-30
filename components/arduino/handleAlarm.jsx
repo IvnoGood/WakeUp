@@ -71,3 +71,18 @@ export const listScheduleAlarmOnArduino = async (device) => {
         console.error(error.message);
     }
 }
+
+
+export const toggleStripState = async (device) => {
+    const src = `http://${device.ip}/toggleLed`
+    fetch(src, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: "{\"firstName\": \"Frodo\",  \"lastName\" : \"Baggins\" }"
+    })
+        .then((response) => response.json())
+        .then((data) => console.log("Success:", data))
+        .catch((error) => console.error("Error:", error));
+}

@@ -92,7 +92,7 @@ export default function SearchForDevices() {
             behavior={Platform.OS === 'android' ? behaviour : undefined}
             style={{ flex: 1 }}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
                     <View style={{ alignItems: 'center' }}>
                         <Icon source={"cogs"} size={50} color={theme.colors.secondary} />
                         <Text style={styles.title}>Add final customization steps</Text>
