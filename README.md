@@ -7,18 +7,6 @@ WakeUp is a mobile application for iOS and Android that transforms your smart li
 
 This app is designed to work with any smart light running the **WLED firmware**.
 
-
-## 🎥 Quick Demo
-
-*(This is where you would embed a short video or GIF showing the app in action. You can record your screen using your phone's built-in screen recorder and upload it to YouTube or convert it to a GIF.)*
-
-[Link to a YouTube Demo Video](https://www.youtube.com/watch?v=your_video_id)
-
-<p align="center">
-  <img src="https://i.imgur.com/your-demo-gif.gif" alt="App Demo GIF" width="300"/>
-</p>
-
-
 ## ✨ Key Features
 
 *   **Gentle Sunrise Simulation:** Customize the duration of your sunrise, from a quick 5-minute glow to a long, 60-minute transition.

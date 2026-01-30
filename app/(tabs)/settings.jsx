@@ -1,15 +1,16 @@
 // app/(tabs)/settings.jsx
 
-import { blink } from '@/components/light/lightUp';
+import { scheduleAlarmOnArduino, toggleStripState } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import { useAppTheme } from '@/components/provider/ThemeProvider';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
+import SelectInput from '@/components/ui/SelectInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
-import { ActivityIndicator, Button, Card, Divider, List, RadioButton, Text, useTheme } from "react-native-paper";
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, List, useTheme } from "react-native-paper";
 
 const ALL_THEMES = [
     { name: "Default Orange", key: "Classic", color: "#ffb86e" },
@@ -18,6 +19,14 @@ const ALL_THEMES = [
     { name: "Deep Purple", key: "DeepPurple", color: "#2A004E" },
     { name: "Muted Magenta", key: "MutedMagenta", color: "#8C3061" },
     { name: "Neutral Gray", key: "NeutralGray", color: "#DDDDDD" },
+];
+
+const ALL_PARAMS = [
+    { name: "Device", key: "devices" },
+    { name: "Alarms", key: "alarms" },
+    { name: "Favorites Alarms", key: "favs" },
+    { name: "New User param", key: "isNew" },
+    { name: "Current Theme", key: "AppTheme" },
 ];
 
 export default function SettingsScreen() {
@@ -29,6 +38,7 @@ export default function SettingsScreen() {
     const [devices, setDevices] = useState(null);
     const [themeFromStorage, setThemeFromStorage] = useState('');
     const [isThemeModalVisible, setIsThemeModalVisible] = useState(false);
+    const [isCacheVisible, setIsCacheVisible] = useState(false);
     const [focusedIcons, setFocusedIcons] = useState({
         delAlarms: false,
         delFavorites: false,
@@ -45,7 +55,7 @@ export default function SettingsScreen() {
 
     const testAlarm = {
         id: "test-alarm-id",
-        brightness: 0.7,
+        brightness: 125,
         startTime: getTestAlarmTime(),
         sunriseTime: "1",
         title: "Test Alarm"
@@ -73,6 +83,12 @@ export default function SettingsScreen() {
         setIsThemeModalVisible(false);
     };
 
+    const onCacheSelect = async (key) => {
+        console.log('removed: ', key)
+        await AsyncStorage.removeItem(key)
+        setIsCacheVisible(false)
+    }
+
     const toggleIconFocus = (iconName) => {
         setFocusedIcons(prevState => ({
             ...prevState,
@@ -90,21 +106,25 @@ export default function SettingsScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <SafeAreaView style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={"Settings"} />
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {state ? (
+                    {state || Platform.OS === "web" ? (
                         <List.Section>
                             <List.Subheader>Alarm Tests</List.Subheader>
                             <List.Item
                                 title="Test Light On/Off"
                                 left={() => <List.Icon icon="lightbulb-on-outline" />}
-                                onPress={() => fetch(`http://${devices.ip}/json/state`, { method: 'POST', body: JSON.stringify({ "on": "t", seg: [{ "col": [devices.color] }] }) })}
+                                onPress={() => {
+                                    devices.provider == 'Arduino' ? toggleStripState(devices) : fetch(`http://${devices.ip}/json/state`, {
+                                        method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ "on": "t", "bri": 125, seg: [{ "col": [devices.color] }] })
+                                    })
+                                }}
                             />
                             <List.Item
                                 title="Test Sunrise Sequence"
                                 left={() => <List.Icon icon="alarm-check" />}
-                                onPress={() => blink(devices, testAlarm)}
+                                onPress={() => devices.provider == 'Arduino' ? scheduleAlarmOnArduino(devices, testAlarm) : blink(devices, testAlarm, true)}
                             />
                         </List.Section>
                     ) : (<></>)}
@@ -121,32 +141,9 @@ export default function SettingsScreen() {
                     <List.Section>
                         <List.Subheader>Cache Management</List.Subheader>
                         <List.Item
-                            title="Delete All Alarms"
-                            onPressIn={() => toggleIconFocus('delAlarms')}
-                            onPressOut={() => toggleIconFocus('delAlarms')}
-                            onPress={async () => await AsyncStorage.removeItem('alarms')}
-                            left={() => <List.Icon icon={focusedIcons.delAlarms ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete Device"
-                            onPressIn={() => toggleIconFocus('delDevice')}
-                            onPressOut={() => toggleIconFocus('delDevice')}
-                            onPress={async () => await AsyncStorage.removeItem('devices')}
-                            left={() => <List.Icon icon={focusedIcons.delDevice ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete All Favorite Alarms"
-                            onPressIn={() => toggleIconFocus('delFavorites')}
-                            onPressOut={() => toggleIconFocus('delFavorites')}
-                            onPress={async () => await AsyncStorage.removeItem('favs')}
-                            left={() => <List.Icon icon={focusedIcons.delFavorites ? "delete-forever" : "delete-forever-outline"} />}
-                        />
-                        <List.Item
-                            title="Delete New User options"
-                            onPressIn={() => toggleIconFocus('delNewUser')}
-                            onPressOut={() => toggleIconFocus('delNewUser')}
-                            onPress={async () => await AsyncStorage.removeItem('isNew')}
-                            left={() => <List.Icon icon={focusedIcons.delNewUser ? "delete-forever" : "delete-forever-outline"} />}
+                            title="Delete Cache"
+                            onPress={() => setIsCacheVisible(true)}
+                            left={() => <List.Icon icon="delete-forever" />}
                         />
                     </List.Section>
 
@@ -155,7 +152,7 @@ export default function SettingsScreen() {
                         <List.Item
                             title="Log Custom Data"
                             left={() => <List.Icon icon="console-line" />}
-                            onPress={async () => { console.log('Favorites:', await AsyncStorage.getItem('devices')) }}
+                            onPress={async () => { console.log('Favorites:', await AsyncStorage.getItem('favs')) }}
                         />
                         <List.Item
                             title="Open Test Page"
@@ -165,41 +162,11 @@ export default function SettingsScreen() {
                     </List.Section>
                 </ScrollView>
             </SafeAreaView>
+            <SelectInput visibility={isThemeModalVisible} changeVisibility={setIsThemeModalVisible} content={ALL_THEMES} title={'Choose your theme'} onSubmit={onThemeSelect} defaultValue={themeFromStorage} />
 
-            <Modal
-                transparent={true}
-                visible={isThemeModalVisible}
-                onRequestClose={() => setIsThemeModalVisible(false)}
-                animationType="fade"
-            >
-                <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setIsThemeModalVisible(false)}>
-                    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} onStartShouldSetResponder={() => true}>
-                        <Card.Title title="Choose your theme" titleVariant="titleLarge" />
-                        <Card.Content>
-                            <ScrollView>
-                                {ALL_THEMES.map((radioTheme, index) => (
-                                    <View key={radioTheme.key}>
-                                        {index > 0 && <Divider />}
-                                        <TouchableOpacity style={styles.radioRow} onPress={() => onThemeSelect(radioTheme.key)}>
-                                            <RadioButton.Android
-                                                value={radioTheme.key}
-                                                status={themeFromStorage === radioTheme.key ? 'checked' : 'unchecked'}
-                                                onPress={() => onThemeSelect(radioTheme.key)}
-                                            />
-                                            <Text variant="bodyLarge" style={styles.radioLabel}>{radioTheme.name}</Text>
-                                            <View style={[styles.colorSwatch, { backgroundColor: radioTheme.color }]} />
-                                        </TouchableOpacity>
-                                    </View>
-                                ))}
-                            </ScrollView>
-                        </Card.Content>
-                        <Card.Actions>
-                            <Button onPress={() => setIsThemeModalVisible(false)}>Done</Button>
-                        </Card.Actions>
-                    </Card>
-                </TouchableOpacity>
-            </Modal>
-            {state ? (<></>) : (<View>
+            <SelectInput visibility={isCacheVisible} changeVisibility={setIsCacheVisible} content={ALL_PARAMS} title={'Delete a cache value'} onSubmit={onCacheSelect} />
+
+            {state || Platform.OS === "web"? (<></>) : (<View>
                 <DeviceSnackbar state={state} />
             </View >)}
         </>
@@ -215,33 +182,5 @@ const styles = StyleSheet.create({
     center: {
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    card: {
-        width: '90%',
-        maxWidth: 350,
-        maxHeight: '70%',
-    },
-    radioRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-    },
-    radioLabel: {
-        flex: 1,
-        marginLeft: 8,
-    },
-    colorSwatch: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        marginLeft: 16,
-        borderWidth: 1,
-        borderColor: '#888',
     },
 });

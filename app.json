@@ -13,8 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#1B1A2C"
+        "foregroundImage": "./assets/images/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.IvnoGood.WakeUp"
@@ -29,12 +28,13 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#fff8f4",
           "dark": {
-            "backgroundColor": "#18120d"
+            "backgroundColor": "#18120d",
+            "image": "./assets/images/splash-icon-dark.png"
           }
         }
       ],
@@ -63,6 +63,12 @@
       "eas": {
         "projectId": "d6e9fdf5-0dfa-47f0-982a-5aee7b7a5827"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d6e9fdf5-0dfa-47f0-982a-5aee7b7a5827"
     }
   }
 }

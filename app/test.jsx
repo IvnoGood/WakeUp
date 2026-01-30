@@ -1,71 +1,85 @@
-// In some screen component like AddNewAlarmScreen.js
-import { requestNotificationPermissions, scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import { useLightState } from '@/components/provider/LightStateProvider';
-import { useAppTheme } from '@/components/provider/ThemeProvider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
-import { ScrollView } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Keyboard, KeyboardAvoidingView, Linking, Platform, SafeAreaView, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
+import { Button, HelperText, Icon, TextInput, useTheme } from "react-native-paper";
+export default function SearchForDevices() {
+    const [ipAddress, setIpAddress] = useState('');
+    const [errors, setErrors] = useState(false)
+    const theme = useTheme()
+    const router = useRouter()
 
-const alarm = {
-    "brightness": 155.390625,
-    "endTime": "00:44",
-    "id": "3a4b9c8e-485d-4e06-95d1-c515dfbef9b8",
-    "initialIsActive": false,
-    "rawEndTime": "2025-07-10T23:44:18.411Z",
-    "rawStartTime": "2025-07-10T23:14:18.411Z",
-    "startTime": "22:13",
-    "subtitle": "Next light up Saturday",
-    "sunriseTime": "30",
-    "title": "School Morning"
-}
-const device = {
-    "ip": "wakeup.free.beeceptor.com",
-    "deviceName": "My lamp",
-    "color": [255, 255, 255]
-}
-
-export default function AddNewAlarmScreen() {
-    const { theme, setThemeName } = useAppTheme();
-    const { state, setState } = useLightState();
-    const [input, setInput] = useState("")
-    console.warn(state)
-    //console.warn("this is a test", theme)
-    useEffect(() => {
-        // Make sure we have permissions when the screen loads
-        requestNotificationPermissions();
-    }, []);
-
-    const handleTestNotification = async () => {
-        scheduleAlarmNotification(alarm, device);
-        console.log(alarm.id, JSON.stringify(true))
-        await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
-        console.log(await AsyncStorage.getItem(alarm.id))
+    const openURL = (url) => {
+        Linking.openURL(url).catch((err) => console.error('An error occurred', err));
     };
 
-    useEffect(() => {
-        async function GetData() {
-            const rawFetchedInput = await AsyncStorage.getItem("AppTheme")
-            const fetchedInput = rawFetchedInput ? JSON.parse(rawFetchedInput) : new console.error("No theme in AsyncStorage");
-            setInput(fetchedInput)
-        }
-        GetData()
-    }, [])
+    const hasErrors = () => {
+        return !ipAddress.length;
+    };
 
-    const handleThemeChange = async () => {
-        setThemeName(input)
-        await AsyncStorage.setItem("AppTheme", JSON.stringify(input))
+    const nextOnPress = () => {
+        if (!ipAddress.length) {
+            setErrors(true)
+            return
+        }
+        router.push({
+            pathname: '/welcome/deviceType',
+            params: {
+                ipAddress: ipAddress
+            }
+        }
+        )
     }
 
     return (
-        <ScrollView style={{ backgroundColor: theme.colors.background }}>
-            <Button onPress={handleTestNotification} >Send Test Notification in 5s</Button>
-            <TextInput value={input} onChangeText={setInput} />
-            <Button onPress={handleThemeChange} >Change theme</Button>
-
-            <Text>{JSON.stringify(theme)}</Text>
-        </ScrollView>
-    );
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+                    <View style={{ alignItems: 'center' }}>
+                        <Icon source={"home-search-outline"} size={50} color={theme.colors.secondary} />
+                        <Text style={styles.title}>Input custom Ip address</Text>
+                        <Text style={styles.description}>The Ip address will be used to connect to your WLED device. If you can't/don't know how to see your device ip address see docs for more detail</Text>
+                        <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md')}>See how</Button>
+                    </View>
+                    <View style={{ alignItems: 'center', width: '100%', gap: 10 }}>
+                        <TextInput label="Ip adress:"
+                            value={ipAddress}
+                            onChangeText={setIpAddress}
+                            style={{ maxWidth: 350, width: '100%' }}
+                        />
+                        <HelperText type="error" visible={errors}>
+                            Ip address can't be empty
+                        </HelperText>
+                    </View>
+                    <Button mode="contained" style={styles.boutons} onPress={nextOnPress}>Next</Button>
+                </SafeAreaView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+    )
 }
 
-
+export const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 20,
+        paddingVertical: 100,
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    title: {
+        fontSize: 30,
+        textAlign: 'center'
+    },
+    description: {
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    boutons: {
+        marginTop: 30,
+        minWidth: 300
+    },
+    progressBar: {
+        width: 200,
+    }
+})

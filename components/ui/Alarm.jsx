@@ -1,27 +1,24 @@
 import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/components/alarm/handleAlarmMenuMD3';
 import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
+import { scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import { useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Card, Divider, Menu, ProgressBar, Switch, useTheme } from 'react-native-paper';
 
-export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state }) {
-    const [isEnabled, setIsEnabled] = useState(alarm.initialIsActive);
+export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state, isActivated }) {
+    const [isEnabled, setIsEnabled] = useState(isActivated);
     const [alarmFavTitle, setAlarmFavTitle] = useState("")
     const [alarmFavIcon, setAlarmFavIcon] = useState("")
     const theme = useTheme()
-    // Custom colors for the Switch component to match the design
-    const trackColor = { false: '#E6C4B4', true: '#F5E6C4' };
-    const thumbColor = isEnabled ? '#E0C990' : '#E0C990';
 
     const [visible, setVisible] = useState(false)
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
+    //console.log(alarm.title, isActivated)
     function getAlarmStatus(startTimeStr, endTimeStr) {
         // --- Step 1: Create Date objects for today ---
 
@@ -96,22 +93,27 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
 
     const toggleSwitch = async () => {
         if (isEnabled) {
-            setIsEnabled(false)
             try {
-                if (new Date(alarm.rawStartTime).getTime() > new Date().getTime()
-                    && new Date(alarm.rawEndTime).getTime() < new Date().getTime()) {
-                    await Notifications.cancelScheduledNotificationAsync(alarm.id);
-                    console.log(`Notification with id ${alarm.id} successfully canceled`)
+                setIsEnabled(false)
+                await AsyncStorage.removeItem(alarm.id)
+
+                if (device.provider === 'Arduino') {
+                    unScheduleAlarmOnArduino(device, alarm)
                 } else {
-                    await AsyncStorage.setItem(alarm.id, JSON.stringify(false))
+                    await Notifications.cancelScheduledNotificationAsync(alarm.id);
                 }
+
             } catch (e) {
                 console.error("There was an error cancelling the notification", e)
             }
         } else {
             try {
                 setIsEnabled(true)
-                scheduleAlarmNotification(alarm, device);
+                if (device.provider === 'Arduino') {
+                    scheduleAlarmOnArduino(device, alarm)
+                } else {
+                    scheduleAlarmNotification(alarm, device);
+                }
                 await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
             } catch (e) {
                 console.error("Error while setting alarm in Alarm:121", e)
@@ -119,17 +121,16 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
         }
     }
 
-
-    const getAlarms = useCallback(() => {
+    useEffect(() => {
         async function fetchData() {
             const [title, icon] = menuAlarmFavorite(alarm, favorites)
             setAlarmFavTitle(title)
             setAlarmFavIcon(icon)
-            console.log(title, icon)
+            const rawSwitchState = await AsyncStorage.getItem(alarm.id)
+            setIsEnabled(rawSwitchState ? JSON.parse(rawSwitchState) : false)
         }
         fetchData();
-    }, []);
-    useFocusEffect(getAlarms)
+    }, [favorites]);
 
     return (
         <View style={{ flexDirection: 'row-reverse' }}>
@@ -191,7 +192,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flex: 1,
         padding: 20,
-
     },
     cardTopRow: {
         flexDirection: 'row',
@@ -202,13 +202,11 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontFamily: 'SystemBold',
         fontSize: 26,
-        //color: Colors.text,
         fontWeight: 'bold',
         maxWidth: '250'
     },
     cardSubtitle: {
         fontSize: 16,
-        //color: Colors.text,
         marginTop: 4,
         lineHeight: 22,
     },
@@ -220,7 +218,6 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontSize: 14,
-        color: Colors.text,
     },
     dot: {
         width: 9,
@@ -232,7 +229,6 @@ const styles = StyleSheet.create({
     },
     inactiveDot: {
         borderWidth: 1.5,
-        borderColor: Colors.text,
     },
     menuIcon: {
         marginLeft: 8,

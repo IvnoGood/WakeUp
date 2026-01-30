@@ -1,34 +1,33 @@
-// app/(tabs)/alarms.jsx (or wherever your HomeScreen is)
-
+import { fetchAlarmsFromArduino, listScheduleAlarmOnArduino, sendAlarmsToArduino } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { FAB, useTheme } from 'react-native-paper';
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, FAB, useTheme } from 'react-native-paper';
+
+const alarm = [{ "brightness": 125, "endTime": "10:00", "id": "b75d5be2-ea56-44ba-a3e8-d8f4f9392dfa", "initialIsActive": false, "rawEndTime": "2025-09-06T08:00:00.000Z", "rawStartTime": "2025-09-06T07:30:00.000Z", "startTime": "09:30", "subtitle": "Next light up Saturday", "sunriseTime": "30", "title": "School Morning" }]
 
 export default function Alarms() {
     const [alarms, setAlarms] = useState()
+    const [scheduledAlarms, setScheduledAlarms] = useState([])
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
+    const [loading, setLoading] = useState(true)
     const theme = useTheme()
     const router = useRouter()
     const { state } = useLightState();
 
-    const [fontsLoaded] = useFonts({
-        ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'),
-    });
 
     const getAlarms = useCallback(() => {
         async function fetchData() {
             try {
+                setLoading(true)
                 const rawSavedAlarms = await AsyncStorage.getItem('alarms');
                 const savedAlarms = rawSavedAlarms ? JSON.parse(rawSavedAlarms) : null;
-                setAlarms(savedAlarms);
 
                 const rawSavedFavs = await AsyncStorage.getItem('favs');
                 const savedFavs = rawSavedFavs ? JSON.parse(rawSavedFavs) : [];
@@ -36,6 +35,16 @@ export default function Alarms() {
                 const rawDevices = await AsyncStorage.getItem('devices');
                 const savedDevices = rawDevices ? JSON.parse(rawDevices) : null;
                 setDevices(savedDevices)
+
+                if (state && savedDevices.provider === 'Arduino') {
+                    await sendAlarmsToArduino(savedDevices, savedAlarms)
+                    setAlarms(await fetchAlarmsFromArduino(savedDevices) || savedAlarms)
+                    setScheduledAlarms(await listScheduleAlarmOnArduino(savedDevices))
+                } else {
+                    setAlarms(savedAlarms);
+                }
+
+                setLoading(false)
 
             } catch (e) {
                 console.error("Failed to fetch alarms", e);
@@ -46,16 +55,22 @@ export default function Alarms() {
     }, []);
     useFocusEffect(getAlarms)
 
-    if (!fontsLoaded) {
-        return null
+    if (loading) {
+        return (
+            <View style={[styles.container, styles.center, { backgroundColor: theme.colors.background }]}>
+                <ActivityIndicator animating={true} size="large" />
+            </View>
+        )
     }
 
+    //console.warn(scheduledAlarms ? scheduledAlarms.filter((scheduled) => console.log(scheduled)) : null)
+
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
             <PageHeader title={"Alarm"} showPlus={false} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                {alarms ? alarms.map((alarm) => (
+                {alarms && alarms.map((alarm) => (
                     <View key={alarm.id} style={styles.cardRow}>
                         <View style={{ flex: 1 }}>
                             <AlarmCard
@@ -67,12 +82,12 @@ export default function Alarms() {
                                 alarms={alarms}
                                 progress={0}
                                 state={state}
+                                isActivated={scheduledAlarms ? scheduledAlarms.filter((scheduled) => alarm.id === scheduled.id).length > 0 : false}
                             />
                         </View>
-                    </View>
-                )) : <Text style={[styles.noAlarm, { color: theme.colors.onBackground }]}>No alarms</Text>}
+                    </View>))}
             </ScrollView>
-            {state ? (
+            {state || Platform.OS === "web" ? (
                 <FAB
                     icon="alarm-plus"
                     style={styles.fab}
@@ -89,8 +104,11 @@ export default function Alarms() {
 }
 
 const styles = StyleSheet.create({
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     container: {
-        //backgroundColor: Colors.background,
         flex: 1,
         paddingHorizontal: 20,
         paddingTop: 60,

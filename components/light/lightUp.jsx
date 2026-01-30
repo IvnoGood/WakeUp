@@ -4,12 +4,24 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function blink(devices, alarm) {
+
+async function getAlarmState(alarm, isTesting) {
+    const rawAlarmState = await AsyncStorage.getItem(alarm.id)
+    let alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : false
+    if (alarmState === null && isTesting || alarmState || !alarmState && isTesting) {
+        return true
+    } else if (alarmState === null) {
+        return null
+    } else {
+        return false
+    }
+}
+
+export async function blink(devices, alarm, isTesting) {
     try {
         const maxpower = Math.floor(alarm.brightness)
         const precision = 1
-        const rawAlarmState = await AsyncStorage.getItem(alarm.id)
-        const alarmState = rawAlarmState ? JSON.parse(rawAlarmState) : null
+        const alarmState = await getAlarmState(alarm, isTesting)
         if (alarmState === null) {
             console.error("Error while fetching data")
             return
@@ -25,7 +37,7 @@ export async function blink(devices, alarm) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ "bri": 0, transition: 4, seg: [{ "col": [devices.color] }] }),
+            body: JSON.stringify({ "bri": 0, "on": true, transition: 4, seg: [{ "col": [devices.color] }] }),
         }).then(response => response.status)
             // .then(data => console.log(data))
             .catch(error => console.error('Error:', error));
@@ -37,7 +49,8 @@ export async function blink(devices, alarm) {
         await sleep(1000);
         if (alarmState) {
             while (multiplier - 1 < alarm.sunriseTime) { //bright < maxpower && stop === true
-                if (JSON.parse(await AsyncStorage.getItem(alarm.id))) {
+                let state = await getAlarmState(alarm, isTesting)
+                if (state) {
                     bright = Math.floor(currentStep * multiplier)
                     fetch(`http://${devices.ip}/json/state`, {
                         method: 'POST',
@@ -49,13 +62,25 @@ export async function blink(devices, alarm) {
                         // .then(data => console.log(data))
                         .catch(error => console.error('Error:', error));
                     multiplier += 1
-                    await sleep(60000 / precision);
+                    await sleep(1000)
+                } else {
+                    fetch(`http://${devices.ip}/json/state`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ bri: alarm.brightness }),
+                    }).then(response => response.status)
+                        // .then(data => console.log(data))
+                        .catch(error => console.error('Error:', error));
+                    break
                 }
             }
         } else {
             console.warn("Maybe error but alarm lighUp stopped at lunch")
         }
-        console.warn("finished succesfuly")
+        console.warn("finished succesfuly");
+        await AsyncStorage.setItem(alarm.id, JSON.stringify(false))
     } catch (e) {
         console.error("error happened", e)
     }

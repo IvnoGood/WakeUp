@@ -1,12 +1,29 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Keyboard, KeyboardAvoidingView, Linking, Platform, SafeAreaView, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { Button, HelperText, Icon, Text, TextInput, useTheme } from "react-native-paper";
+
 export default function SearchForDevices() {
     const [ipAddress, setIpAddress] = useState('');
     const [errors, setErrors] = useState(false)
+    const [behaviour, setBehaviour] = useState('height');
     const theme = useTheme()
     const router = useRouter()
+
+
+    useEffect(() => {
+        const showListener = Keyboard.addListener('keyboardDidShow', () => {
+            setBehaviour('height');
+        });
+        const hideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setBehaviour(undefined);
+        });
+
+        return () => {
+            showListener.remove();
+            hideListener.remove();
+        };
+    }, []);
 
     const openURL = (url) => {
         Linking.openURL(url).catch((err) => console.error('An error occurred', err));
@@ -17,46 +34,52 @@ export default function SearchForDevices() {
     };
 
     const nextOnPress = () => {
-        if (!ipAddress.length) {
+        if (!ipAddress.length && Platform.OS !== 'web') {
             setErrors(true)
             return
         }
         router.push({
-            pathname: '/welcome/testDeviceIP',
+            pathname: '/welcome/deviceType',
             params: {
-                ipAddress: ipAddress
+                ipAddress: ipAddress || "0.0.0.0"
             }
         }
         )
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <View style={{ alignItems: 'center' }}>
-                <Icon source={"home-search-outline"} size={50} color={theme.colors.secondary} />
-                <Text style={styles.title}>Input custom Ip addres</Text>
-                <Text style={styles.description}>The Ip address will be used to connect to your WLED device. If you can't/don't know how to see your device ip address see docs for more detail</Text>
-                <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md')}>See how</Button>
-            </View>
-            <View style={{ alignItems: 'center', width: '100%', gap: 10 }}>
-                <TextInput label="Ip adress:"
-                    value={ipAddress}
-                    onChangeText={setIpAddress}
-                    style={{ maxWidth: 350, width: '100%' }}
-                />
-                <HelperText type="error" visible={errors}>
-                    Ip address can't be empty
-                </HelperText>
-            </View>
-            <Button mode="contained" style={styles.boutons} onPress={nextOnPress}>Next</Button>
-        </SafeAreaView>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'android' ? behaviour : undefined}
+            style={{ flex: 1 }}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
+                    <View style={{ alignItems: 'center' }}>
+                        <Icon source={"home-search-outline"} size={50} color={theme.colors.secondary} />
+                        <Text style={styles.title}>Input custom Ip address</Text>
+                        <Text style={styles.description}>The Ip address will be used to connect to your WLED device. If you can't/don't know how to see your device ip address see docs for more detail</Text>
+                        <Button mode="outlined" style={styles.boutons} onPress={() => openURL('https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md')}>See how</Button>
+                    </View>
+                    <View style={{ alignItems: 'center', width: '100%', gap: 10 }}>
+                        <TextInput label="Ip adress:"
+                            value={ipAddress}
+                            onChangeText={setIpAddress}
+                            style={{ maxWidth: 350, width: '100%' }}
+                        />
+                        <HelperText type="error" visible={errors}>
+                            Ip address can't be empty
+                        </HelperText>
+                    </View>
+                    <Button mode="contained" style={styles.boutons} onPress={nextOnPress}>Next</Button>
+                </SafeAreaView>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     )
 }
 
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
+        padding: 10,
         paddingVertical: 100,
         alignItems: 'center',
         justifyContent: 'space-between'

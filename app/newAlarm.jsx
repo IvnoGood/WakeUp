@@ -1,13 +1,11 @@
 import PageHeader from '@/components/ui/pageHeader';
-import { Colors } from '@/constants/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
-import { useFonts } from 'expo-font';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Button, FAB, Text, useTheme, TextInput } from "react-native-paper";
+import { Button, Snackbar, Text, TextInput, useTheme } from "react-native-paper";
 import uuid from 'react-native-uuid';
 
 import {
@@ -22,18 +20,16 @@ import {
 export default function AddNewAlarmScreen() {
     const [name, setName] = useState('School Morning');
     const [sunriseTime, setSunriseTime] = useState('30');
-    const [brightness, setBrightness] = useState(0); // Value between 0 and 1
+    const [brightness, setBrightness] = useState(125); // Value between 0 and 1
 
     const [time, setTime] = useState(new Date());
     const [showPicker, setShowPicker] = useState(false);
     const [savedAlarm, setSavedAlarm] = useState(null)
 
     const router = useRouter();
-    const theme = useTheme()
+    const theme = useTheme();
 
-    const [fontsLoaded] = useFonts({
-        'ShadowsIntoLight': require('@/assets/fonts/ShadowsIntoLight-Regular.ttf'), // Update path if needed
-    });
+    const [visible, setVisible] = useState(false);
 
     const onSunriseChange = (textData) => {
         const numericText = textData.replace(/[^0-9]/g, '');
@@ -48,8 +44,14 @@ export default function AddNewAlarmScreen() {
         }
     };
 
-    const storeData = async () => {
+    const storeData = async (destroyParams) => {
         try {
+            if (brightness < 100) {
+                if (!destroyParams) {
+                    setVisible(true)
+                    return
+                }
+            }
             if (sunriseTime > 60) {
                 alert('Sunrise time must be greater should be less than 60min')
             }
@@ -146,42 +148,20 @@ export default function AddNewAlarmScreen() {
     }, [])
     useFocusEffect(fetchAlarm)
 
-    if (!fontsLoaded) {
-        return null;
-    }
-
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <PageHeader title={savedAlarm == null ? "New Alarm" : "Edit alarm"} />
+                <PageHeader closeAction={onQuit} showClose={true} title={savedAlarm == null ? "New Alarm" : "Edit alarm"} />
 
                 <View style={styles.content}>
                     <View style={styles.form}>
                         <TextInput label="Name" value={name} onChangeText={setName} />
                         <View style={styles.inputGroup}>
-
-                            {/* The button that triggers showing the picker */}
-                            {/* <TouchableOpacity style={styles.inputContainer} onPress={toggleTimepicker}>
-                                <Text style={styles.input}> {formatTime(time)}</Text>
-                            </TouchableOpacity> */}
-                            {/*                             <TouchableOpacity onPress={toggleTimepicker} style={{ backgroundColor: 'red', position: 'absolute', width: '100%', height: 57, top: 0, right: 0 }}>
-                            </TouchableOpacity>
-                            <TextInput
-                                keyboardType="numeric"
-                                label="Sunrise Time"
-                                value={formatTime(time)}
-                                onChangeText={onSunriseChange}
-                                vals={"min"}
-                                maxLen={9}
-                                disabled={false}
-                            /> */}
                             <Button icon={'clock'} onPress={toggleTimepicker} mode='outlined'>{formatTime(time)}</Button>
 
-
-                            {/* The DateTimePicker component, conditionally rendered */}
                             {showPicker && (
                                 <DateTimePicker
                                     testID="dateTimePicker"
@@ -220,14 +200,20 @@ export default function AddNewAlarmScreen() {
                         </View>
                     </View>
 
-                    <Button mode='elevated' onPress={storeData} >Save</Button>
+                    <Button mode='elevated' onPress={() => storeData(false)} >Save</Button>
+                    <Snackbar
+                        onDismiss={() => setVisible(false)}
+                        visible={visible}
+                        action={{
+                            label: 'Save anyway',
+                            onPress: () => {
+                                storeData(true)
+                            },
+                        }}>
+                        Brightness should not be too low
+                    </Snackbar>
                 </View>
             </KeyboardAvoidingView>
-            <FAB
-                icon="close"
-                style={styles.fab}
-                onPress={onQuit}
-            />
         </SafeAreaView>
     );
 }
@@ -238,21 +224,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     label: {
-        color: Colors.secAccent,
         fontSize: 16,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#D4BBAA',
-        paddingBottom: 8,
-        minHeight: 55,
-    },
-    input: {
-        flex: 1,
-        color: Colors.text,
-        fontSize: 18,
     },
     container: {
         flex: 1,
@@ -262,17 +234,6 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingBottom: 50,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 20,
-        gap: 15,
-    },
-    headerTitle: {
-        fontFamily: 'ShadowsIntoLight',
-        color: Colors.text,
-        fontSize: 36,
     },
     form: {
         marginTop: 30,
@@ -286,15 +247,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#3A3858',
     },
-    label: {
-        color: Colors.secAccent,
-        fontSize: 16,
-    },
-    textInput: {
-        color: Colors.text,
-        fontSize: 16,
-        textAlign: 'right',
-    },
     sliderControl: {
         flex: 1,
         flexDirection: 'row',
@@ -306,11 +258,5 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 40,
         marginHorizontal: 10,
-    },
-    fab: {
-        position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 50,
     },
 });

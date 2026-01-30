@@ -1,6 +1,7 @@
 const express = require("express");
+const data = require("./sample.json");
 const app = express();
-const port = 3000;
+const port = 3030;
 
 let ledState = {
   on: true,
@@ -14,10 +15,14 @@ app.use(express.static("public"));
 
 app.post("/json/state", (req, res) => {
   // Toggle on/off if "on":"t" is sent
+  console.log(req.body);
   if (req.body.on === "t") {
     ledState.on = !ledState.on;
+  } else if (req.body.on === true) {
+    ledState.on = true;
+  } else if (req.body.on === false) {
+    ledState.on = false;
   }
-  // Update other params if present
   if (typeof req.body.bri === "number") ledState.bri = req.body.bri;
   if (typeof req.body.transition === "number")
     ledState.transition = req.body.transition;
@@ -25,6 +30,10 @@ app.post("/json/state", (req, res) => {
     ledState.seg = req.body.seg;
   }
   res.status(200).json({ success: true });
+});
+
+app.get("/json/info", (req, res) => {
+  res.json(data.info);
 });
 
 app.get("/state", (req, res) => {

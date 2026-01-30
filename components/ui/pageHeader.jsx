@@ -1,22 +1,17 @@
-import { Colors } from '@/constants/colors';
-import { useFonts } from 'expo-font';
-import { useRouter } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from "react-native";
-import { Divider, Text, useTheme } from 'react-native-paper';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { StyleSheet, View } from "react-native";
+import { Divider, IconButton, Text } from 'react-native-paper';
 
-export default function PageHeader({ title, child, showClose, showPlus, plusAction, closeAction }) {
-    const [loading] = useFonts({
-        ShadowIntoLightRegular: require('@/assets/fonts/ShadowsIntoLight-Regular.ttf')
-    })
-    const theme = useTheme()
-    const router = useRouter();
+export default function PageHeader({ title, showClose, closeAction }) {
     return (
         <View style={styles.header} >
-            {showClose && <TouchableOpacity onPress={() => closeAction ? closeAction() : router.back()} style={styles.closeBtn}><MaterialIcons name={"close"} size={28} color={Colors.text} /></TouchableOpacity>}
-            <Text style={styles.title}>{title}</Text>
-            {showPlus && <TouchableOpacity onPress={() => plusAction()} style={styles.addBtn}><MaterialIcons name={"add"} size={28} color={Colors.text} /></TouchableOpacity>}
-            {child}
+            {showClose && <IconButton
+                icon="close"
+                onPress={closeAction}
+                size={30}
+                mode='contained'
+                style={{ marginRight: 20, position: 'absolute', left: 20 }}
+            />}
+            <Text style={[styles.title, { marginLeft: showClose ? 60 : 0 }]}>{title}</Text>
             <Divider />
         </View>
     );
@@ -31,16 +26,7 @@ const styles = StyleSheet.create({
         paddingVertical: 20
     },
     title: {
-        //fontFamily: "ShadowIntoLightRegular",
         fontSize: 30,
         textAlign: 'left'
     },
-    addBtn: {
-        position: 'absolute',
-        right: 20
-    },
-    closeBtn: {
-        position: 'absolute',
-        left: 20
-    }
 });

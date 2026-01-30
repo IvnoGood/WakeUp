@@ -7,11 +7,10 @@ import DeviceCard from "@/components/ui/DeviceCard";
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
 import EmptyFetch from '@/components/ui/EmptyFetch';
 import PageHeader from "@/components/ui/pageHeader";
-import { Colors } from '@/constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { useCallback, useState } from 'react';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
 
 export default function HomeScreen() {
@@ -40,6 +39,7 @@ export default function HomeScreen() {
         router.push('/newDevice')
     }
 
+
     const getData = useCallback(() => {
         async function GetDevices() {
             try {
@@ -57,8 +57,7 @@ export default function HomeScreen() {
                     setShowNewDevice(true)
                 }
                 setLoading(false)
-                const response = await getLightStatus(SavedDevices.ip)
-                console.log(response)
+                const response = await getLightStatus(SavedDevices.ip, SavedDevices.provider)
                 if (response.isConnected) {
                     setOnline(response)
                     setState(true)
@@ -85,7 +84,7 @@ export default function HomeScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={'Devices'} />
                 {!deviceLoading ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
                     <DeviceCard
@@ -118,6 +117,7 @@ export default function HomeScreen() {
                                     setFavorites={setFavorites}
                                     alarms={null}
                                     progress={0}
+                                    state={state}
                                 />
                             </View>
                         </View>
@@ -141,14 +141,13 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         paddingTop: 60,
-        flex: 1
+        flex: 1,
     },
     center: {
         justifyContent: 'center',
         alignItems: 'center',
     },
     noDevice: {
-        color: Colors.text,
         fontSize: 20,
         textTransform: 'capitalize',
         textAlign: 'center',

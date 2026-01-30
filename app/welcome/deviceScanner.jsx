@@ -1,48 +1,103 @@
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
-import { Button, Icon, ProgressBar, Snackbar, Text, useTheme } from "react-native-paper";
+import sleep from '@/components/delay';
+import { useFocusEffect, usePathname, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Button, Card, Icon, IconButton, ProgressBar, Text, useTheme } from "react-native-paper";
 
 export default function SearchForDevices() {
-    const [snackbarVisibility, setSnackbarVisibility] = useState(false)
+    const [isSearching, setIsSearching] = useState(true)
+    const [foundDevices, setFoundDevices] = useState([])
     const theme = useTheme()
-    const router = useRouter()
+    const router = useRouter();
+    const pathname = usePathname();
+    const ipAddressScheme = '192.168.1.'
+    const nextPage = '/welcome/deviceType'
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    useFocusEffect(
+        useCallback(() => {
+            async function fetchIP(i) {
+                const currentTriedIP = ipAddressScheme + i + ":3000"
+                let response
 
-    useState(() => {
-        async function getData() {
-            await sleep(3000)
-            setSnackbarVisibility(true)
-        }
-        getData()
-    })
+                //--- WLED version --- //
+                await fetch(`http://${currentTriedIP}/json/state`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "on": true })
+                }).then(response => response.json())
+                    .then(data => { response = data })
+                    .catch(error => { })
+                console.log("Tried with this IP", currentTriedIP, "and got this response", response)
+                if (JSON.stringify(response) === JSON.stringify({ "success": true })) {
+                    setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                } else {
+                    // --- ARDUINO version --- //
+                    // -- Did not test TODO: check if it works
+
+                    await fetch(`http://${currentTriedIP}/status`).then(response => response.json())
+                        .then(data => { response = data })
+                        .catch(error => { return })
+                    console.log("Tried with this IP", currentTriedIP, "and got this response", response)
+                    if (response) {
+                        if (response.ip_address === currentTriedIP) {
+                            setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                        }
+                    }
+                }
+            }
+            async function cycleIP() {
+                for (let i = 0; i <= 50; i++) {
+                    fetchIP(i)
+                    await sleep(250)
+                }
+                await sleep(1000)
+                if (foundDevices.length === 0) {
+                    setIsSearching(false)
+                }
+            }
+            cycleIP()
+        }, []))
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <View style={{ alignItems: 'center' }}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
+            <View style={{ alignItems: 'center', marginBottom: 30 }}>
                 <Icon source={"lan-pending"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>Scanning network searching for a WLED device</Text>
             </View>
-            <ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} />
-            <Button mode="outlined" style={styles.boutons} onPress={() => router.push('/welcome/newDeviceIp')}>Enter IP address manually</Button>
-            <Snackbar
-                visible={snackbarVisibility}
-                onDismiss={() => setSnackbarVisibility(false)}
-                rippleColor={theme.colors.surface}
-                style={{ position: 'absolute', bottom: 15, }}
-                action={{
-                    label: 'Dismiss',
-                    onPress: () => {
-                        setSnackbarVisibility(false)
-                    },
-                }}
-            >
-                Nothing was found
-            </Snackbar>
-        </SafeAreaView>
+            <ScrollView style={{ flex: 1, width: 300, overflow: 'hidden', paddingBottom: 20, paddingHorizontal: 10 }}>
+                {foundDevices.length !== 0 ? foundDevices.map((data) => (
+                    <Card key={data.ip} style={{ width: '100%', marginVertical: 5 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 10 }}>
+                            <Icon source={"lan"} size={20} />
+                            <Text variant="titleLarge" style={{ marginLeft: 10, marginRight: 'auto' }}>{data.ip}</Text>
+                            <IconButton icon={"check"} mode='contained' onPress={() => {
+                                router.push({
+                                    pathname: nextPage,
+                                    params: {
+                                        ipAddress: data.ip
+                                    }
+                                })
+                            }} />
+                        </View>
+                    </Card>
+                )) : (<View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 10 }}>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Icon source={"close"} size={20} color={theme.colors.error} />
+                        <Text style={[styles.description, { marginTop: 0, color: theme.colors.error }]}>No Devices found</Text>
+                    </View>
+                    <View>
+                        <Text style={[styles.description, { marginTop: 0 }]}>Make sure your device is connected to same internet as your device.</Text>
+                    </View>
+                </View>)}
+            </ScrollView>
+            {isSearching && (<View style={{ justifyContent: 'center', alignContent: 'center', flex: 1 }}><ProgressBar style={styles.progressBar} progress={0.5} indeterminate={true} /></View>)}
+            <View style={{ flexDirection: 'column', height: 100, gap: 10 }}>
+                <Button mode="outlined" style={styles.boutons} onPress={() => router.push('/welcome/newDeviceIp')}>Enter IP address manually</Button>
+                <Button style={[styles.boutons, { display: !isSearching ? 'flex' : 'none' }]} icon={"reload"} onPress={() => { router.replace(pathname) }}>Retry</Button>
+            </View >
+        </SafeAreaView >
     )
 }
 
@@ -63,10 +118,10 @@ export const styles = StyleSheet.create({
         marginTop: 20,
     },
     boutons: {
-        marginTop: 30,
-        minWidth: 300
+        minWidth: 300,
+        maxHeight: 40,
     },
     progressBar: {
         width: 200,
-    }
+    },
 })

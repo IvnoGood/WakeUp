@@ -4,10 +4,9 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
+import { Platform } from 'react-native';
 
-export default function askForNotificationPermission() {
-    const [isNew, setIsNew] = useState(false)
-    const [status, setStatus] = useState()
+export default function AskForNotificationPermission() {
     const [disabled, setDisabled] = useState(true)
     const [loading, setLoading] = useState(true)
     const theme = useTheme()
@@ -23,12 +22,10 @@ export default function askForNotificationPermission() {
         const { status } = await Notifications.requestPermissionsAsync();
         if (status !== 'granted') {
             alert('Permission to send notifications was denied!');
-            setStatus(status)
             setDisabled(true)
             return false;
         } else {
             console.warn("Notification permissions granted.");
-            setStatus(status)
             router.push(nextPage)
             return true;
         }
@@ -41,11 +38,9 @@ export default function askForNotificationPermission() {
             const { status } = await Notifications.requestPermissionsAsync();
             if (status !== 'granted') {
                 alert('Permission to send notifications was denied!');
-                setStatus(status)
                 setDisabled(true)
             } else {
                 console.warn("Notification permissions granted.");
-                setStatus(status)
                 router.push(nextPage)
             }
         }
@@ -60,7 +55,7 @@ export default function askForNotificationPermission() {
         );
     }
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"message-badge-outline"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>We need your consent</Text>
