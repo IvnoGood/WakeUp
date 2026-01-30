@@ -3,6 +3,7 @@ import { blink } from '@/components/light/lightUp';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
+import { Platform } from 'react-native';
 
 const BACKGROUND_NOTIFICATION_TASK = 'BACKGROUND-NOTIFICATION-TASK';
 
@@ -13,7 +14,7 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, ({ data, error }) => {
         console.error('TaskManager (notifications) Error:', error);
         return;
     }
-    if (data) {
+    if (data && Platform.OS !== 'web') {
         // The data is the notification object itself.
         const { notification } = data;
         const { alarm, device } = notification.request.content.data;
@@ -36,6 +37,9 @@ TaskManager.defineTask(BACKGROUND_NOTIFICATION_TASK, ({ data, error }) => {
 });
 
 export async function setupAllTasksAndPermissions() {
+    if (Platform.OS === 'web') {
+        return
+    }
     console.log("Setting up tasks and permissions...");
 
     // 1. Register the Notification Task

@@ -1,5 +1,3 @@
-// app/(tabs)/_layout.jsx
-
 import { Tabs } from 'expo-router';
 import React, { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -8,30 +6,33 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// This is our new, fully custom TabBar that has the correct MD3 look.
+// Constants for the indicator size
+const INDICATOR_WIDTH = 64;
+const INDICATOR_HEIGHT = 32;
+
 function Material3TabBar({ navigation, state, descriptors }) {
     const theme = useTheme();
     const { bottom } = useSafeAreaInsets();
     const { width } = useWindowDimensions();
 
-    // Calculate the width of each tab item
-    const tabWidth = width / state.routes.length;
+    // 1. Calculate the exact width of one tab based on current screen size
+    const totalTabs = state.routes.length;
+    const tabWidth = width / totalTabs;
 
-    // Create an animated value to track the active index
     const activeIndex = useSharedValue(state.index);
 
-    // Update the animated value whenever the state index changes
     useEffect(() => {
-        activeIndex.value = withTiming(state.index, { duration: 0 });
+        activeIndex.value = withTiming(state.index, { duration: 200 }); // Added duration for smoother slide
     }, [state.index]);
 
-
-    // Create the animated style for the "pill" indicator
+    // 2. The Math to center the pill:
+    // (Current Tab Index * Width of a Tab) -> Gets us to the start of the tab
+    // + (Width of a Tab / 2) -> Gets us to the center of the tab
+    // - (Width of the Pill / 2) -> Centers the pill itself
     const animatedIndicatorStyle = useAnimatedStyle(() => {
+        const xOffset = (activeIndex.value * tabWidth) + (tabWidth / 2) - (INDICATOR_WIDTH / 2);
         return {
-            // Animate the horizontal position of the pill
-            transform: [{ translateX: activeIndex.value * tabWidth - 138 }],
-            //transform: [{ scaleX: 2 }]
+            transform: [{ translateX: xOffset }],
         };
     });
 
@@ -46,18 +47,19 @@ function Material3TabBar({ navigation, state, descriptors }) {
                 },
             ]}
         >
-            {/* The Animated Pill Indicator (sits behind the icons) */}
+            {/* The Animated Pill Indicator */}
+            {/* Note: We removed alignItems: 'center' from styles so we can calculate from the left edge */}
             <Animated.View style={[styles.indicatorContainer, animatedIndicatorStyle]}>
                 <View
                     style={[
                         styles.indicator,
-                        { backgroundColor: theme.colors.secondaryContainer, marginBottom: 65 },
+                        { backgroundColor: theme.colors.secondaryContainer },
                     ]}
                 />
             </Animated.View>
 
-            {/* The Tab Buttons (sit on top of the indicator) */}
-            <View style={{ flexDirection: 'row' }}>
+            {/* The Tab Buttons */}
+            <View style={styles.tabsRow}>
                 {state.routes.map((route, index) => {
                     const { options } = descriptors[route.key];
                     const isFocused = state.index === index;
@@ -86,12 +88,18 @@ function Material3TabBar({ navigation, state, descriptors }) {
                             key={route.key}
                             onPress={onPress}
                             style={styles.tabItem}
-                            rippleColor={'rgba(0,0,0,0)'}
-                            underlayColor={'rgba(0,0,0,0)'}
+                            borderless={true}
+                            rippleColor={"rgba(0,0,0,0)"} 
                         >
                             <View style={styles.tabContent}>
                                 {icon}
-                                <Text variant="labelSmall" style={{ fontWeight: options.tabBarIcon ? 'normal' : 'bold' }}>
+                                <Text 
+                                    variant="labelSmall" 
+                                    style={{ 
+                                        color: color, 
+                                        fontWeight: isFocused ? 'bold' : 'normal' 
+                                    }}
+                                >
                                     {options.title}
                                 </Text>
                             </View>
@@ -103,7 +111,6 @@ function Material3TabBar({ navigation, state, descriptors }) {
     );
 }
 
-// Your main TabLayout component (no changes needed here)
 export default function TabLayout() {
     return (
         <Tabs
@@ -144,20 +151,27 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
     tabBarContainer: {
         justifyContent: 'center',
+        // Ensure relative positioning context for the absolute indicator
+        position: 'relative', 
     },
     indicatorContainer: {
         position: 'absolute',
         top: 0,
-        bottom: -30,
-        left: 2,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
+        left: 0, // IMPORTANT: Start from the left edge
+        height: '100%',
+        justifyContent: 'center', // Vertically center the pill
+        // Removed alignItems: 'center' and width: '100%' so the transform works from x=0
     },
     indicator: {
-        width: 64,  // Standard MD3 indicator width
-        height: 32, // Standard MD3 indicator height
-        borderRadius: 16, // Creates the "pill" shape
+        width: INDICATOR_WIDTH,
+        height: INDICATOR_HEIGHT,
+        borderRadius: 16,
+        marginBottom: 20, // Adjust this to move pill up/down relative to icons
+    },
+    tabsRow: {
+        flexDirection: 'row', 
+        width: '100%',
+        height: '100%',
     },
     tabItem: {
         flex: 1,
@@ -168,5 +182,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 4,
+        width: '100%', // Ensure click area is full width
+        height: '100%', // Ensure click area is full height
     },
 });

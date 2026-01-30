@@ -10,7 +10,7 @@ import PageHeader from "@/components/ui/pageHeader";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, Divider, FAB, Menu, Text, useTheme } from 'react-native-paper';
 
 export default function HomeScreen() {
@@ -84,7 +84,7 @@ export default function HomeScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <SafeAreaView style={[styles.container, Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background  }]}>
                 <PageHeader title={'Devices'} />
                 {!deviceLoading ? (<View style={{ flexDirection: 'row', alignItems: 'center', paddingTop: 25 }}>
                     <DeviceCard
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     container: {
         padding: 20,
         paddingTop: 60,
-        flex: 1
+        flex: 1,
     },
     center: {
         justifyContent: 'center',

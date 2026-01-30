@@ -6,7 +6,7 @@ import PageHeader from '@/components/ui/pageHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, FAB, useTheme } from 'react-native-paper';
 
 const alarm = [{ "brightness": 125, "endTime": "10:00", "id": "b75d5be2-ea56-44ba-a3e8-d8f4f9392dfa", "initialIsActive": false, "rawEndTime": "2025-09-06T08:00:00.000Z", "rawStartTime": "2025-09-06T07:30:00.000Z", "startTime": "09:30", "subtitle": "Next light up Saturday", "sunriseTime": "30", "title": "School Morning" }]
@@ -66,7 +66,7 @@ export default function Alarms() {
     //console.warn(scheduledAlarms ? scheduledAlarms.filter((scheduled) => console.log(scheduled)) : null)
 
     return (
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
             <PageHeader title={"Alarm"} showPlus={false} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -87,7 +87,7 @@ export default function Alarms() {
                         </View>
                     </View>))}
             </ScrollView>
-            {state ? (
+            {state || Platform.OS === "web" ? (
                 <FAB
                     icon="alarm-plus"
                     style={styles.fab}

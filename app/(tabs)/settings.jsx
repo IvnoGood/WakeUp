@@ -9,7 +9,7 @@ import SelectInput from '@/components/ui/SelectInput';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, List, useTheme } from "react-native-paper";
 
 const ALL_THEMES = [
@@ -106,10 +106,10 @@ export default function SettingsScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
+            <SafeAreaView style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={"Settings"} />
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {state ? (
+                    {state || Platform.OS === "web" ? (
                         <List.Section>
                             <List.Subheader>Alarm Tests</List.Subheader>
                             <List.Item
@@ -164,7 +164,7 @@ export default function SettingsScreen() {
 
             <SelectInput visibility={isCacheVisible} changeVisibility={setIsCacheVisible} content={ALL_PARAMS} title={'Delete a cache value'} onSubmit={onCacheSelect} />
 
-            {state ? (<></>) : (<View>
+            {state || Platform.OS === "web"? (<></>) : (<View>
                 <DeviceSnackbar state={state} />
             </View >)}
         </>

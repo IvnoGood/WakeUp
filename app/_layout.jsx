@@ -8,13 +8,17 @@ import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native';
+import { Platform } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 
 function Layout() {
   const { theme, setThemeName } = useAppTheme();
   const router = useRouter()
   useEffect(() => {
-
+    if (Platform.OS === 'web') {
+    // Code specific to web
+    return
+    }
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
     const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
       console.log("FOREGROUND: Notification received!");
@@ -72,7 +76,7 @@ function Layout() {
         console.error("Error thrown in layout", e)
       }
     }
-    GetData()
+    Platform.OS !== 'web' ? GetData(): console.log("In web")
   }, [])
   return (
 
