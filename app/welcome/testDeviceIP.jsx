@@ -20,12 +20,14 @@ export default function SearchForDevices() {
                     await fetch(`http://${ipAddress}/status`)
                         .then(response => response.json())
                         .then(data => { response = data })
-                        .catch(error => { setErrors(true); console.error(error) })
+                        .catch(error => { setErrors(true); console.log(error) })
                     console.log(response)
-                    if (response.ip_address === ipAddress) {
-                        setFinished(true)
-                    } else {
-                        setErrors(true)
+                    if (response) {
+                        if (response.ip_address === ipAddress) {
+                            setFinished(true)
+                        } else {
+                            setErrors(true)
+                        }
                     }
                 } catch (e) {
                     setErrors(true)
@@ -43,7 +45,7 @@ export default function SearchForDevices() {
                             body: JSON.stringify({ "on": 't' })
                         }).then(response => response.json())
                             .then(data => { response = data })
-                            .catch((e) => { console.error(e); setErrors(true) })
+                            .catch((e) => { console.log(e); setErrors(true) })
                         if (errors || JSON.stringify(response) !== JSON.stringify({ "success": true })) {
                             setErrors(true)
                             break
@@ -61,7 +63,7 @@ export default function SearchForDevices() {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ "on": true })
-                }).catch((e) => console.error(e))
+                }).catch((e) => console.log(e))
                 setFinished(true)
             }
         }
@@ -72,7 +74,7 @@ export default function SearchForDevices() {
         <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"alarm-check"} size={50} color={theme.colors.secondary} />
-                <Text style={styles.title}>WLED device check</Text>
+                <Text style={styles.title}>{provider} device check</Text>
                 <Text style={styles.description}>Currently making your device blink if not try go back and change it&apos;s IP address</Text>
             </View>
             {/*--- Check if finished ---*/}
@@ -82,7 +84,7 @@ export default function SearchForDevices() {
                     color={theme.colors.primary}
                     size={50}
                 />
-                <Text style={styles.description}>Error happened { }</Text>
+                <Text style={styles.description}>Error happened </Text>
             </View>)
                 /*--- Check for errors ---*/
                 : finished ? (<View style={{ alignItems: 'center' }}>

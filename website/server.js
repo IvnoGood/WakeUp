@@ -1,5 +1,6 @@
 const express = require("express");
 const data = require("./sample.json");
+const ip = require("ip");
 const app = express();
 const port = 3030;
 
@@ -41,5 +42,5 @@ app.get("/state", (req, res) => {
 });
 
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Serveur WLED simulé sur http://0.0.0.0:${port}`);
+  console.log(`Serveur WLED simulé sur ${ip.address()}:${port}`);
 });

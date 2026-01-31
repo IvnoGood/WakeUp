@@ -16,7 +16,7 @@ export default function SearchForDevices() {
     useFocusEffect(
         useCallback(() => {
             async function fetchIP(i) {
-                const currentTriedIP = ipAddressScheme + i + ":3000"
+                const currentTriedIP = ipAddressScheme + i + ":3030"
                 let response
 
                 //--- WLED version --- //
@@ -48,9 +48,9 @@ export default function SearchForDevices() {
                 }
             }
             async function cycleIP() {
-                for (let i = 0; i <= 50; i++) {
+                for (let i = 0; i <= 255; i++) {
                     fetchIP(i)
-                    await sleep(250)
+                    await sleep(0)
                 }
                 await sleep(1000)
                 if (foundDevices.length === 0) {
