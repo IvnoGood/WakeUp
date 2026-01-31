@@ -2,10 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Linking, Platform, SafeAreaView, StyleSheet } from "react-native";
-import { Button, Icon, Text, useTheme } from "react-native-paper";
+import { ActivityIndicator, Button, Icon, Text, useTheme } from "react-native-paper";
 
 export default function WelcomeScreen() {
     const [isNew, setIsNew] = useState(false)
+    const [loading, setLoading] = useState(true)
     const theme = useTheme()
     const router = useRouter()
     const nextPage = '/welcome/askForNoficationPermission'
@@ -17,6 +18,7 @@ export default function WelcomeScreen() {
     useEffect(() => {
         async function getData() {
             try {
+                setLoading(false)
                 const rawIsNew = await AsyncStorage.getItem("isNew")
                 const isNew = rawIsNew ? JSON.parse(rawIsNew) : true
                 if (!isNew) {
@@ -29,6 +31,13 @@ export default function WelcomeScreen() {
         getData()
     }, [])
 
+    if (loading) {
+        return (
+            <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background, justifyContent: 'center' }]}>
+                <ActivityIndicator animating={true} size="large" />
+            </SafeAreaView>
+        );
+    }
     return (
         <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
             <Icon source={"desk-lamp"} size={50} color={theme.colors.secondary} />

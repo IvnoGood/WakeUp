@@ -1,10 +1,8 @@
-import sleep from '@/components/delay';
 import * as Notifications from 'expo-notifications';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Linking, SafeAreaView, StyleSheet, View } from "react-native";
+import { Linking, Platform, SafeAreaView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, HelperText, Icon, Text, useTheme } from "react-native-paper";
-import { Platform } from 'react-native';
 
 export default function AskForNotificationPermission() {
     const [disabled, setDisabled] = useState(true)
@@ -19,6 +17,7 @@ export default function AskForNotificationPermission() {
 
 
     async function getData() {
+        setLoading(false)
         const { status } = await Notifications.requestPermissionsAsync();
         if (status !== 'granted') {
             alert('Permission to send notifications was denied!');
@@ -32,7 +31,7 @@ export default function AskForNotificationPermission() {
     }
 
     useEffect(() => {
-        async function getData() {
+        /* async function getData() {
             await sleep(250)
             setLoading(false)
             const { status } = await Notifications.requestPermissionsAsync();
@@ -43,8 +42,13 @@ export default function AskForNotificationPermission() {
                 console.warn("Notification permissions granted.");
                 router.push(nextPage)
             }
+        } */
+        if (Platform.OS === 'web') {
+            setLoading(false)
+            setDisabled(false)
+        } else {
+            getData()
         }
-        getData()
     }, [])
 
     if (loading) {
@@ -64,7 +68,7 @@ export default function AskForNotificationPermission() {
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 30 }}>
                     <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={() => openURL("https://github.com/IvnoGood/WakeUp/blob/devloppement/docs/WelcomeDocs.md")}>Open docs</Button>
-                    <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={getData}>Ask Permission</Button>
+                    <Button mode='outlined' style={{ paddingHorizontal: 0, marginTop: 30, minWidth: 100 }} onPress={() => { if (Platform.OS !== "web") { getData } }}>Ask Permission</Button>
                 </View>
             </View>
             <View style={{ alignItems: 'center' }}>

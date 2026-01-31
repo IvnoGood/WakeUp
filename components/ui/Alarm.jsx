@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Card, Divider, Menu, ProgressBar, Switch, useTheme } from 'react-native-paper';
+import { Card, Divider, Menu, Switch, useTheme } from 'react-native-paper';
 
 export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites, setFavorites, progress, state, isActivated }) {
     const [isEnabled, setIsEnabled] = useState(isActivated);
@@ -137,7 +137,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             <Menu
                 visible={visible}
                 onDismiss={closeMenu}
-                anchor={<TouchableOpacity title='' style={{ position: 'relative' }} ><Text></Text></TouchableOpacity>}>
+                anchor={<TouchableOpacity title='' style={{ position: 'relative', width: 0.2 }} ><Text></Text></TouchableOpacity>}>
                 <Menu.Item
                     leadingIcon={'pencil'}
                     onPress={() => { editAlarm(null, alarm.id, alarm, setFavorites, favorites, alarms, setAlarms); closeMenu() }}
@@ -162,48 +162,75 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
                     title="Delete"
                 />
             </Menu>
-            <Card style={[styles.cardRow, { backgroundColor: theme.colors.surfaceVariant }]} onPress={() => openMenu()}>
-                <View style={styles.cardTopRow}>
-                    <Text style={[styles.cardTitle, { color: theme.colors.onSurfaceVariant }]} variant="titleLarge">{alarm.title}</Text>
-                    <Switch
-                        value={isEnabled}
-                        onValueChange={() => toggleSwitch()}
-                        disabled={!state}
-                    />
-                </View>
+            <Card style={{ backgroundColor: theme.colors.surfaceVariant, width: '100%', height: '100%' }} contentStyle={styles.card} onPress={() => openMenu()}>
+                <View style={{ flex: 1 }}>
+                    <View style={styles.cardTopRow}>
+                        <Text style={[styles.cardTitle, { color: theme.colors.onSurfaceVariant }]} variant="titleLarge">{alarm.title}</Text>
+                        <TouchableOpacity style={{ width: '30%', height: 34, alignItems: 'center', justifyContent: 'center' }} onPress={() => toggleSwitch()}>
+                            <Switch
+                                value={isEnabled}
+                                onValueChange={() => toggleSwitch()}
+                                disabled={!state}
+                            />
+                        </TouchableOpacity>
+                    </View>
 
-                <Text style={[styles.cardSubtitle, { color: theme.colors.onSurfaceVariant }]}>{getAlarmStatus(alarm.startTime, alarm.endTime)}</Text>
+                    <Text style={[styles.cardSubtitle, { color: theme.colors.onSurfaceVariant }]}>{getAlarmStatus(alarm.startTime, alarm.endTime)}</Text>
 
-                <View style={styles.cardBottomRow}>
-                    <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.startTime}</Text>
-                    <ProgressBar
-                        progress={progress}
-                        style={[styles.progressBar, { backgroundColor: theme.colors.surface }]}
-                    />
-                    <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.endTime}</Text>
+                    <View style={styles.cardBottomRow}>
+                        <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.startTime}</Text>
+                        {/* <ProgressBar
+                            progress={progress}
+                            style={[styles.progressBar, { backgroundColor: theme.colors.surface }]}
+                        /> */}
+                        <View style={{ flex: 1, borderColor: theme.colors.surface, borderWidth: 1.5, borderCurve: 10, marginHorizontal: 10 }}></View>
+                        <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.endTime}</Text>
+                    </View>
                 </View>
-            </Card>
-        </View>
+            </Card >
+            {/*  <Card style={[styles.card, { backgroundColor: theme.colors.surfaceVariant }]} onPress={() => openMenu()}>
+                <View style={styles.cardContent}>
+                    <View style={styles.cardTopRow}>
+                        <Text style={[styles.cardTitle, { color: theme.colors.onSurfaceVariant }]} variant="titleLarge">{alarm.title}</Text>
+                        <Switch
+                            value={isEnabled}
+                            onValueChange={() => toggleSwitch()}
+                            disabled={!state}
+                        />
+                    </View>
+
+                    <Text style={[styles.cardSubtitle, { color: theme.colors.onSurfaceVariant }]}>{getAlarmStatus(alarm.startTime, alarm.endTime)}</Text>
+
+                    <View style={styles.cardBottomRow}>
+                        <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.startTime}</Text>
+                        <ProgressBar
+                            progress={progress}
+                            style={[styles.progressBar, { backgroundColor: theme.colors.surface }]}
+                        />
+                        <Text style={[styles.timeText, { color: theme.colors.onSurfaceVariant }]}>{alarm.endTime}</Text>
+                    </View>
+                </View>
+            </Card> */}
+        </View >
     );
 };
 
 const styles = StyleSheet.create({
-    cardRow: {
-        flexDirection: 'row',
+    card: {
+        flexDirection: 'col',
         flex: 1,
         padding: 20,
+        width: '100%'
     },
     cardTopRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width: '100%'
     },
     cardTitle: {
-        fontFamily: 'SystemBold',
         fontSize: 26,
         fontWeight: 'bold',
-        maxWidth: '250'
+        maxWidth: 250
     },
     cardSubtitle: {
         fontSize: 16,
@@ -215,28 +242,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 25,
+        overflow: "hidden",
+        maxWidth: '100%',
     },
     timeText: {
         fontSize: 14,
     },
-    dot: {
-        width: 9,
-        height: 9,
-        borderRadius: 5,
-    },
-    activeDot: {
-        backgroundColor: 'white',
-    },
-    inactiveDot: {
-        borderWidth: 1.5,
-    },
-    menuIcon: {
-        marginLeft: 8,
-    },
-    contextView: {
-        flexDirection: 'row'
-    },
     progressBar: {
-        width: 200,
+        maxWidth: '25%',
+        maxHeight: 5,
+        borderCurve: 10,
+        marginHorizontal: 15
     }
 })
