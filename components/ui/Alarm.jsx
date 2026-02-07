@@ -92,6 +92,10 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
     }
 
     const toggleSwitch = async () => {
+        if (!state) {
+            setIsEnabled(!isEnabled);
+            return;
+        }
         if (isEnabled) {
             try {
                 setIsEnabled(false)

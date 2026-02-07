@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
         );
     }
     return (
-        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
             <Icon source={"desk-lamp"} size={50} color={theme.colors.secondary} />
             <Text style={styles.title}>Welcome to your sunrise alarm clock companion App</Text>
             <Text style={styles.description}>

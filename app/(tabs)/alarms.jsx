@@ -66,7 +66,7 @@ export default function Alarms() {
     //console.warn(scheduledAlarms ? scheduledAlarms.filter((scheduled) => console.log(scheduled)) : null)
 
     return (
-        <View style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
             <PageHeader title={"Alarm"} showPlus={false} />
 
             <ScrollView showsVerticalScrollIndicator={false}>

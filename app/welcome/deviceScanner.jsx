@@ -7,6 +7,7 @@ import { Button, Card, Icon, IconButton, ProgressBar, Text, useTheme } from "rea
 export default function SearchForDevices() {
     const [isSearching, setIsSearching] = useState(true)
     const [foundDevices, setFoundDevices] = useState([])
+    const [devicesSearched, setDevicesSearched] = useState(0)
     const theme = useTheme()
     const router = useRouter();
     const pathname = usePathname();
@@ -16,7 +17,7 @@ export default function SearchForDevices() {
     useFocusEffect(
         useCallback(() => {
             async function fetchIP(i) {
-                const currentTriedIP = ipAddressScheme + i + ":3030"
+                const currentTriedIP = ipAddressScheme + i
                 let response
 
                 //--- WLED version --- //
@@ -29,9 +30,10 @@ export default function SearchForDevices() {
                 }).then(response => response.json())
                     .then(data => { response = data })
                     .catch(error => { })
-                console.log("Tried with this IP", currentTriedIP, "and got this response", response)
+
                 if (JSON.stringify(response) === JSON.stringify({ "success": true })) {
                     setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                    console.log("WLED: Tried with this IP", currentTriedIP, "and got this response", response)
                 } else {
                     // --- ARDUINO version --- //
                     // -- Did not test TODO: check if it works
@@ -39,10 +41,11 @@ export default function SearchForDevices() {
                     await fetch(`http://${currentTriedIP}/status`).then(response => response.json())
                         .then(data => { response = data })
                         .catch(error => { return })
-                    console.log("Tried with this IP", currentTriedIP, "and got this response", response)
+
                     if (response) {
                         if (response.ip_address === currentTriedIP) {
                             setFoundDevices([...foundDevices, { ip: currentTriedIP }])
+                            console.log("ARDUINO: Tried with this IP", currentTriedIP, "and got this response", response)
                         }
                     }
                 }
@@ -52,7 +55,7 @@ export default function SearchForDevices() {
                     fetchIP(i)
                     await sleep(0)
                 }
-                await sleep(1000)
+                await sleep(5000)
                 if (foundDevices.length === 0) {
                     setIsSearching(false)
                 }
@@ -61,7 +64,7 @@ export default function SearchForDevices() {
         }, []))
 
     return (
-        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center', marginBottom: 30 }}>
                 <Icon source={"lan-pending"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>Scanning network searching for a WLED device</Text>
@@ -88,7 +91,7 @@ export default function SearchForDevices() {
                         <Text style={[styles.description, { marginTop: 0, color: theme.colors.error }]}>No Devices found</Text>
                     </View>
                     <View>
-                        <Text style={[styles.description, { marginTop: 0 }]}>Make sure your device is connected to same internet as your device.</Text>
+                        <Text style={[styles.description, { marginTop: 0 }]}>Make sure your device is connected to same internet as your device (sometimes wait a bit to make sure).</Text>
                     </View>
                 </View>)}
             </ScrollView>
