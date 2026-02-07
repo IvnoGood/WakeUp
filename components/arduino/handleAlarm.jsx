@@ -27,6 +27,20 @@ export const sendAlarmsToArduino = async (device, alarm) => {
         .catch((error) => console.error("Error:", error));
 }
 
+export const deleteAlarmOnArduino = async (device, alarm) => {
+    const src = `http://${device.ip}/removeAlarm`
+    fetch(src, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(alarm)
+    })
+        .then((response) => response.json())
+        //.then((data) => console.log("Success:", data))
+        .catch((error) => console.error("Error:", error));
+}
+
 export const scheduleAlarmOnArduino = async (device, alarm) => {
     const src = `http://${device.ip}/setSchedule`
     fetch(src, {
@@ -80,7 +94,7 @@ export const toggleStripState = async (device) => {
         headers: {
             "Content-Type": "application/json"
         },
-        body: "{\"firstName\": \"Frodo\",  \"lastName\" : \"Baggins\" }"
+        body: "{}"
     })
         .then((response) => response.json())
         .then((data) => console.log("Success:", data))

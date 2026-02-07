@@ -1,6 +1,6 @@
 import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/components/alarm/handleAlarmMenuMD3';
 import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
-import { scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
+import { deleteAlarmOnArduino, scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -162,7 +162,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
 
                 <Menu.Item
                     leadingIcon={'delete'}
-                    onPress={() => { DeleteAlarm(null, alarm.id, alarm, setFavorites, favorites, alarms, setAlarms); closeMenu() }}
+                    onPress={() => { DeleteAlarm(null, alarm.id, alarm, setFavorites, favorites, alarms, setAlarms); deleteAlarmOnArduino(device, alarm); closeMenu() }}
                     title="Delete"
                 />
             </Menu>
