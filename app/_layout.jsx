@@ -16,8 +16,8 @@ function Layout() {
   const router = useRouter()
   useEffect(() => {
     if (Platform.OS === 'web') {
-    // Code specific to web
-    return
+      // Code specific to web
+      return
     }
     // --- LISTENER #1: Whe n a notification is RECEIVED while the app is in the foreground ---
     const notificationReceivedSubscription = Notifications.addNotificationReceivedListener(notification => {
@@ -41,13 +41,13 @@ function Layout() {
       try {
         const actionIdentifier = response.actionIdentifier;
         const { alarm, device } = response.notification.request.content.data;
-
+        //TODO: replace this if we want a working version for WLED
         if (actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
-          console.log(`User opened the app by tapping the main notification for alarm: ${alarm.id}`);
+          //console.log(`User opened the app by tapping the main notification for alarm: ${alarm.id}`);
           router.push('/')
         } else if (actionIdentifier === 'stop') {
           console.log(`User pressed "Stop" for alarm: ${alarm.id}`);
-          await AsyncStorage.removeItem(alarm.id)
+          //await AsyncStorage.removeItem(alarm.id)
         }
       } catch (e) {
         console.error(e)
@@ -76,7 +76,7 @@ function Layout() {
         console.error("Error thrown in layout", e)
       }
     }
-    Platform.OS !== 'web' ? GetData(): console.log("In web")
+    Platform.OS !== 'web' ? GetData() : console.log("In web")
   }, [])
   return (
 

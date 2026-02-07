@@ -106,9 +106,9 @@ export default function SettingsScreen() {
 
     return (
         <>
-            <SafeAreaView style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
+            <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
                 <PageHeader title={"Settings"} />
-                <ScrollView showsVerticalScrollIndicator={false}>
+                <ScrollView showsVerticalScrollIndicator={false} >
                     {state || Platform.OS === "web" ? (
                         <List.Section>
                             <List.Subheader>Alarm Tests</List.Subheader>
@@ -166,7 +166,7 @@ export default function SettingsScreen() {
 
             <SelectInput visibility={isCacheVisible} changeVisibility={setIsCacheVisible} content={ALL_PARAMS} title={'Delete a cache value'} onSubmit={onCacheSelect} />
 
-            {state || Platform.OS === "web"? (<></>) : (<View>
+            {state || Platform.OS === "web" ? (<></>) : (<View>
                 <DeviceSnackbar state={state} />
             </View >)}
         </>

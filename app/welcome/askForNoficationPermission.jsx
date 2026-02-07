@@ -59,7 +59,7 @@ export default function AskForNotificationPermission() {
         );
     }
     return (
-        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 0 }, { backgroundColor: theme.colors.background }]}>
+        <SafeAreaView style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
             <View style={{ alignItems: 'center' }}>
                 <Icon source={"message-badge-outline"} size={50} color={theme.colors.secondary} />
                 <Text style={styles.title}>We need your consent</Text>

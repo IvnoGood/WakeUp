@@ -1,4 +1,4 @@
-import { fetchAlarmsFromArduino, listScheduleAlarmOnArduino, sendAlarmsToArduino } from '@/components/arduino/handleAlarm';
+import { listScheduleAlarmOnArduino, sendAlarmsToArduino } from '@/components/arduino/handleAlarm';
 import { useLightState } from '@/components/provider/LightStateProvider';
 import AlarmCard from '@/components/ui/Alarm';
 import DeviceSnackbar from "@/components/ui/DeviceSnackbar";
@@ -17,6 +17,7 @@ export default function Alarms() {
     const [favorites, setFavorites] = useState([])
     const [devices, setDevices] = useState()
     const [loading, setLoading] = useState(true)
+    const [scheduledIds, setScheduledIds] = useState([])
     const theme = useTheme()
     const router = useRouter()
     const { state } = useLightState();
@@ -37,9 +38,23 @@ export default function Alarms() {
                 setDevices(savedDevices)
 
                 if (state && savedDevices.provider === 'Arduino') {
-                    await sendAlarmsToArduino(savedDevices, savedAlarms)
-                    setAlarms(await fetchAlarmsFromArduino(savedDevices) || savedAlarms)
-                    setScheduledAlarms(await listScheduleAlarmOnArduino(savedDevices))
+                    setAlarms(await sendAlarmsToArduino(savedDevices, savedAlarms) || savedAlarms)
+                    await listScheduleAlarmOnArduino(savedDevices)
+                    const scheduled = await listScheduleAlarmOnArduino(savedDevices)
+                    setScheduledAlarms(scheduled)
+                    let array = []
+                    scheduled.forEach(alarm => {
+                        console.log(alarm.id)
+                        console.log(array)
+                        if (array.includes(alarm.id)) {
+                            console.log("in lsit")
+                            return
+                        } else {
+                            array.push(alarm.id)
+                        }
+                    });
+                    setScheduledIds(array)
+                    setLoading(false)
                 } else {
                     setAlarms(savedAlarms);
                 }
@@ -66,7 +81,7 @@ export default function Alarms() {
     //console.warn(scheduledAlarms ? scheduledAlarms.filter((scheduled) => console.log(scheduled)) : null)
 
     return (
-        <View style={[styles.container,Platform.OS === 'web'? {padding: 15}:{padding: 0}, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, Platform.OS === 'web' ? { padding: 15 } : { padding: 20 }, { backgroundColor: theme.colors.background }]}>
             <PageHeader title={"Alarm"} showPlus={false} />
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -87,6 +102,7 @@ export default function Alarms() {
                         </View>
                     </View>))}
             </ScrollView>
+            {console.log("all scheduled", scheduledIds)}
             {state || Platform.OS === "web" ? (
                 <FAB
                     icon="alarm-plus"
