@@ -6,7 +6,7 @@ export const fetchAlarmsFromArduino = async (device) => {
             throw new Error(`Response status: ${response.status}`);
         }
         const result = await response.json();
-        console.log("Fetched alarms from arduino", result);
+        //console.log("Fetched alarms from arduino", result);
         return result
     } catch (error) {
         console.error(error.message);
@@ -15,16 +15,19 @@ export const fetchAlarmsFromArduino = async (device) => {
 
 export const sendAlarmsToArduino = async (device, alarm) => {
     const src = `http://${device.ip}/alarms`
-    fetch(src, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(alarm)
-    })
-        .then((response) => response.json())
-        //.then((data) => console.log("Success:", data))
-        .catch((error) => console.error("Error:", error));
+    try {
+        const response = await fetch(src, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(alarm)
+        })
+        const result = await response.json()
+        return result
+    } catch (error) {
+        console.error("Error:", error)
+    }
 }
 
 export const deleteAlarmOnArduino = async (device, alarm) => {
@@ -79,7 +82,7 @@ export const listScheduleAlarmOnArduino = async (device) => {
             throw new Error(`Response status: ${response.status}`);
         }
         const result = await response.json();
-        console.log("All scheduled notifications: ", result);
+        //console.log("All scheduled notifications: ", result);
         return result
     } catch (error) {
         console.error(error.message);

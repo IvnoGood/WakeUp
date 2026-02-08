@@ -38,18 +38,12 @@ export default function Alarms() {
                 setDevices(savedDevices)
 
                 if (state && savedDevices.provider === 'Arduino') {
-                    setAlarms(await sendAlarmsToArduino(savedDevices, savedAlarms) || savedAlarms)
-                    await listScheduleAlarmOnArduino(savedDevices)
+                    setAlarms(await sendAlarmsToArduino(savedDevices, savedAlarms))
                     const scheduled = await listScheduleAlarmOnArduino(savedDevices)
                     setScheduledAlarms(scheduled)
                     let array = []
                     scheduled.forEach(alarm => {
-                        console.log(alarm.id)
-                        console.log(array)
-                        if (array.includes(alarm.id)) {
-                            console.log("in lsit")
-                            return
-                        } else {
+                        if (!array.includes(alarm.id)) {
                             array.push(alarm.id)
                         }
                     });
@@ -97,12 +91,12 @@ export default function Alarms() {
                                 alarms={alarms}
                                 progress={0}
                                 state={state}
-                                isActivated={scheduledAlarms ? scheduledAlarms.filter((scheduled) => alarm.id === scheduled.id).length > 0 : false}
+                                //isActivated={scheduledAlarms ? scheduledAlarms.filter((scheduled) => alarm.id === scheduled.id).length > 0 : false}
+                                isActivated={scheduledIds.includes(alarm.id)}
                             />
                         </View>
                     </View>))}
             </ScrollView>
-            {console.log("all scheduled", scheduledIds)}
             {state || Platform.OS === "web" ? (
                 <FAB
                     icon="alarm-plus"

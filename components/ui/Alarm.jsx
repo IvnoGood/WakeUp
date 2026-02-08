@@ -2,7 +2,6 @@ import { DeleteAlarm, duplicateAlarm, editAlarm, manageAlarmFavorite } from '@/c
 import { menuAlarmFavorite } from '@/components/alarm/menuAlarmFavorite';
 import { deleteAlarmOnArduino, scheduleAlarmOnArduino, unScheduleAlarmOnArduino } from '@/components/arduino/handleAlarm';
 import { scheduleAlarmNotification } from '@/components/notifications'; // Assuming you created this file
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -99,7 +98,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
         if (isEnabled) {
             try {
                 setIsEnabled(false)
-                await AsyncStorage.removeItem(alarm.id)
+                //await AsyncStorage.removeItem(alarm.id)
 
                 if (device.provider === 'Arduino') {
                     unScheduleAlarmOnArduino(device, alarm)
@@ -118,7 +117,7 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
                 } else {
                     scheduleAlarmNotification(alarm, device);
                 }
-                await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
+                //await AsyncStorage.setItem(alarm.id, JSON.stringify(true))
             } catch (e) {
                 console.error("Error while setting alarm in Alarm:121", e)
             }
@@ -130,8 +129,8 @@ export default function AlarmCard({ alarm, alarms, device, setAlarms, favorites,
             const [title, icon] = menuAlarmFavorite(alarm, favorites)
             setAlarmFavTitle(title)
             setAlarmFavIcon(icon)
-            const rawSwitchState = await AsyncStorage.getItem(alarm.id)
-            setIsEnabled(rawSwitchState ? JSON.parse(rawSwitchState) : false)
+            //const rawSwitchState = await AsyncStorage.getItem(alarm.id)
+            //setIsEnabled(rawSwitchState ? JSON.parse(rawSwitchState) : false)
         }
         fetchData();
     }, [favorites]);
